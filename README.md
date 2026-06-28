@@ -1,4 +1,11 @@
+It's an unofficial fork to update Nirvana for our server, all rights belong to the wonderful original developers and artists!
+
+<img width="953" height="468" alt="image" src="https://github.com/user-attachments/assets/6e7758ad-4258-49c5-8406-86e11b6920d0" />
+
+
 [LINE]: https://i.imgur.com/q7DEmD4.png
+
+# Original description:
 
 ![Nirvana banner](https://i.imgur.com/oEwbqQV.png)
 
