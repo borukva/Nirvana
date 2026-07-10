@@ -96,13 +96,8 @@ public class SuspiciousCraftingRecipe extends CustomRecipe {
     }
 
     @Override
-    public boolean canCraftInDimensions(int i, int j) {
-        return i*j >= 9;
-    }
-
-    @Override
-    public RecipeSerializer<?> getSerializer() {
-        return NirvanaRecipeTypes.SUSPICIOUS_RECIPE_SERIALIZER.get();
+    public RecipeSerializer<? extends CustomRecipe> getSerializer() {
+        return (RecipeSerializer<? extends CustomRecipe>) NirvanaRecipeTypes.SUSPICIOUS_RECIPE_SERIALIZER.get();
     }
 
     public static class Serializer implements RecipeSerializer<SuspiciousCraftingRecipe> {

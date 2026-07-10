@@ -10,11 +10,11 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.SuspiciousStewItem;
-import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.ItemUseAnimation;
 
-public class HerbalSalveItem extends SuspiciousStewItem {
+public class HerbalSalveItem extends Item {
 
     public HerbalSalveItem(Properties properties) {
         super(properties);
@@ -26,7 +26,7 @@ public class HerbalSalveItem extends SuspiciousStewItem {
 
     @Override
     public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target, InteractionHand hand) {
-        if (player.getCooldowns().isOnCooldown(stack.getItem())) return InteractionResult.PASS;
+        if (player.getCooldowns().isOnCooldown(stack)) return InteractionResult.PASS;
 
         var effects = getEffects(stack);
         if (effects.isEmpty()) return InteractionResult.PASS;
@@ -35,7 +35,7 @@ public class HerbalSalveItem extends SuspiciousStewItem {
 
         player.playSound(NirvanaSounds.HERBAL_SALVE.get());
 
-        player.getCooldowns().addCooldown(stack.getItem(), 40);
+        player.getCooldowns().addCooldown(stack, 40);
 
         if (player.level() instanceof ServerLevel level) {
             var xOffset = target.getBbWidth() / 2;
@@ -50,18 +50,18 @@ public class HerbalSalveItem extends SuspiciousStewItem {
             if (stack.getCount() > 1) {
                 stack.shrink(1);
             } else {
-                var remainder = getCraftingRemainingItem();
+                var remainder = getCraftingRemainder();
                 player.setItemInHand(hand, ItemStack.EMPTY);
-                if (remainder != null) player.addItem(remainder.getDefaultInstance());
+                if (remainder != null && !remainder.isEmpty()) player.addItem(remainder.copy());
             }
         }
 
-        return InteractionResult.sidedSuccess(player.level().isClientSide);
+        return player.level().isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
     }
 
     @Override
-    public UseAnim getUseAnimation(ItemStack stack) {
-        if (!getEffects(stack).isEmpty()) return UseAnim.BLOCK;
+    public ItemUseAnimation getUseAnimation(ItemStack stack) {
+        if (!getEffects(stack).isEmpty()) return ItemUseAnimation.BLOCK;
         return super.getUseAnimation(stack);
     }
 }

@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "nirvana:hemp_seeds"
-    },
-    {
-      "item": "minecraft:wheat"
-    },
-    {
-      "item": "minecraft:cocoa_beans"
-    }
+    "nirvana:hemp_seeds",
+    "minecraft:wheat",
+    "minecraft:cocoa_beans"
   ],
   "result": {
     "count": 2,

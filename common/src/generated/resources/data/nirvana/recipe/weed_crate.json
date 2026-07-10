@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "X": {
-      "item": "nirvana:weed"
-    }
+    "X": "nirvana:weed"
   },
   "pattern": [
     "XXX",

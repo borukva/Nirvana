@@ -3,7 +3,7 @@ package galena.nirvana.world.item;
 import galena.nirvana.index.NirvanaEffects;
 import galena.nirvana.index.NirvanaSounds;
 import galena.nirvana.platform.Services;
-import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
@@ -12,6 +12,8 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,7 +25,7 @@ public class BongItem extends SmokingItem {
 
     @Override
     Stream<MobEffectInstance> getEffects(ItemStack stack, @Nullable Level level, @Nullable LivingEntity entity) {
-        return Stream.of(new MobEffectInstance(NirvanaEffects.PEACE, 20 * Services.CONFIG.common().bongPeaceSeconds(), 0));
+        return Stream.of(new MobEffectInstance(NirvanaEffects.peaceHolder(), 20 * Services.CONFIG.common().bongPeaceSeconds(), 0));
     }
 
     @Override
@@ -32,10 +34,10 @@ public class BongItem extends SmokingItem {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> tooltip, TooltipFlag flag) {
         var contents = stack.get(DataComponents.POTION_CONTENTS);
         if (contents != null) {
-            contents.addPotionTooltip(tooltip::add, 1.0F, context.tickRate());
+            PotionContents.addPotionTooltip(contents.getAllEffects(), tooltip, 1.0F, context.tickRate());
         }
     }
 

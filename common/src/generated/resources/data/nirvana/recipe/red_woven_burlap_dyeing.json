@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shapeless",
   "category": "building",
   "ingredients": [
-    {
-      "item": "nirvana:woven_burlap"
-    },
-    {
-      "tag": "c:dyes/red"
-    }
+    "nirvana:woven_burlap",
+    "#c:dyes/red"
   ],
   "result": {
     "count": 1,

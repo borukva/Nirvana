@@ -5,6 +5,7 @@ import galena.nirvana.index.NirvanaItems;
 import galena.nirvana.index.NirvanaTags;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraft.world.entity.npc.VillagerTrades;
@@ -18,7 +19,7 @@ public class NirvanaTrades {
 
     @FunctionalInterface
     public interface Registration {
-        void register(VillagerProfession profession, int level, VillagerTrades.ItemListing listing);
+        void register(ResourceKey<VillagerProfession> profession, int level, VillagerTrades.ItemListing listing);
     }
 
     private static VillagerTrades.ItemListing sell(NonNullSupplier<? extends Item> item, int price, int count) {
@@ -37,7 +38,6 @@ public class NirvanaTrades {
     }
 
     public static void register(Registration registration) {
-        registration.register(VillagerProfession.LEATHERWORKER, 4, sell(NirvanaItems.DEERSTALKER, 10, 1));
         registration.register(VillagerProfession.LEATHERWORKER, 3, sell(NirvanaTags.BURLAP, 10, 4));
         registration.register(VillagerProfession.LEATHERWORKER, 2, sell(NirvanaItems.HEMP_CLOTH, 10, 4));
     }

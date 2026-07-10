@@ -4,17 +4,16 @@ import galena.nirvana.index.NirvanaParticles;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
-import net.minecraft.client.particle.ParticleRenderType;
+import net.minecraft.client.particle.SingleQuadParticle;
 import net.minecraft.client.particle.SpriteSet;
-import net.minecraft.client.particle.TextureSheetParticle;
 import net.minecraft.core.particles.SimpleParticleType;
 
-public class SmokeRingParticle extends TextureSheetParticle implements ICollidingParticle {
+public class SmokeRingParticle extends SingleQuadParticle implements ICollidingParticle {
 
     private final SpriteSet sprites;
 
     protected SmokeRingParticle(ClientLevel level, double x, double y, double z, SpriteSet sprites) {
-        super(level, x, y, z);
+        super(level, x, y, z, sprites.get(level.random));
         this.sprites = sprites;
         this.friction = 0.98F;
         setLifetime(20 * 8);
@@ -41,8 +40,8 @@ public class SmokeRingParticle extends TextureSheetParticle implements ICollidin
     }
 
     @Override
-    public ParticleRenderType getRenderType() {
-        return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
+    public SingleQuadParticle.Layer getLayer() {
+        return SingleQuadParticle.Layer.TRANSLUCENT;
     }
 
     public static class Provider implements ParticleProvider<SimpleParticleType> {
@@ -54,7 +53,7 @@ public class SmokeRingParticle extends TextureSheetParticle implements ICollidin
         }
 
         @Override
-        public Particle createParticle(SimpleParticleType options, ClientLevel level, double x, double y, double z, double xd, double yd, double zd) {
+        public Particle createParticle(SimpleParticleType options, ClientLevel level, double x, double y, double z, double xd, double yd, double zd, net.minecraft.util.RandomSource random) {
             var particle = new SmokeRingParticle(level, x, y, z, sprites);
             particle.xd = xd;
             particle.yd = yd;

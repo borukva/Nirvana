@@ -8,7 +8,6 @@ import com.tterrag.registrate.providers.loot.RegistrateBlockLootTables;
 import com.tterrag.registrate.providers.loot.RegistrateEntityLootTables;
 import com.tterrag.registrate.util.nullness.NonNullBiConsumer;
 import galena.nirvana.platform.services.IDataGenHelper;
-import galena.nirvana.world.item.DeerStalkerItem;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
@@ -119,11 +118,6 @@ public class FabricDataGenHelper implements IDataGenHelper {
     @Override
     public <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrateRecipeProvider> wovenHempBurlap(@Nullable DyeColor color) {
         return (c, p) -> NOOP();
-    }
-
-    @Override
-    public void deerStalker(DataGenContext<Item, DeerStalkerItem> context, RegistrateRecipeProvider provider) {
-        NOOP();
     }
 
     @Override

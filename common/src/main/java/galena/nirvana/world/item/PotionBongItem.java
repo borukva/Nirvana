@@ -3,8 +3,7 @@ package galena.nirvana.world.item;
 import galena.nirvana.NirvanaConstants;
 import galena.nirvana.index.NirvanaSounds;
 import galena.nirvana.platform.Services;
-import java.util.List;
-import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Stream;
@@ -16,10 +15,9 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.alchemy.Potion;
 import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
@@ -63,12 +61,11 @@ public class PotionBongItem extends SmokingItem {
 
         var language = Language.getInstance();
         if (language.has(PATTERN_TRANSLATION_KEY)) try {
-            var potion = Optional.ofNullable(stack.get(DataComponents.POTION_CONTENTS))
-                    .flatMap(PotionContents::potion);
-
-            if (potion.isPresent()) {
+            var contents = stack.get(DataComponents.POTION_CONTENTS);
+            if (contents != null && contents.potion().isPresent()) {
                 var pattern = Pattern.compile(language.getOrDefault(PATTERN_TRANSLATION_KEY));
-                var potionTranslation = language.getOrDefault(Potion.getName(potion, Items.POTION.getDescriptionId() + ".effect."));
+                var potionName = contents.getName(getDescriptionId() + ".effect.");
+                var potionTranslation = language.getOrDefault(potionName.getString());
                 var matcher = pattern.matcher(potionTranslation);
                 if (matcher.find()) {
                     var translation = matcher.group(1);
@@ -79,19 +76,16 @@ public class PotionBongItem extends SmokingItem {
             NirvanaConstants.LOGGER.debug("Unable to translation potion bong automatically", ex);
         }
 
-        return super.getName(stack);
-    }
-
-    public String getDescriptionId(ItemStack stack) {
-        return Potion.getName(stack.getOrDefault(DataComponents.POTION_CONTENTS, PotionContents.EMPTY).potion(), getDescriptionId() + ".effect.");
+        // In MC 1.21.10, Item.getName(ItemStack) reads DataComponents.ITEM_NAME instead of
+        // delegating to getDescriptionId(ItemStack), so we must construct the name manually.
+        var contents = stack.getOrDefault(DataComponents.POTION_CONTENTS, PotionContents.EMPTY);
+        return Component.translatable(contents.getName(getDescriptionId() + ".effect.").getString());
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
-        var contents = stack.get(DataComponents.POTION_CONTENTS);
-        if (contents != null) {
-            contents.addPotionTooltip(tooltip::add, 1.0F, context.tickRate());
-        }
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> tooltip, TooltipFlag flag) {
+        // PotionContents implements TooltipProvider in 1.21.10 and adds its tooltip automatically.
+        // No manual call needed here — that caused effects to appear twice.
     }
 
     @Override

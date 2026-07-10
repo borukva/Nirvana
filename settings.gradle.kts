@@ -10,8 +10,12 @@ plugins {
     id("com.possible-triangle.packwiz") version ("1.4.+")
 }
 
+helper {
+    versionStrategy.set(com.possible_triangle.gradle.settings.ResolutionStrategy.WILDCARD)
+}
+
 include("common")
-loader("forge", "fabric")
+loader("fabric")
 
 fun loader(vararg names: String) =
     names.forEach {

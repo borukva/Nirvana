@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "h": {
-      "item": "nirvana:hemp"
-    },
-    "s": {
-      "item": "minecraft:string"
-    }
+    "h": "nirvana:hemp",
+    "s": "minecraft:string"
   },
   "pattern": [
     "sh ",

@@ -3,18 +3,16 @@ package galena.nirvana.world.particle;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
-import net.minecraft.client.particle.ParticleRenderType;
+import net.minecraft.client.particle.SingleQuadParticle;
 import net.minecraft.client.particle.SpriteSet;
-import net.minecraft.client.particle.TextureSheetParticle;
 import net.minecraft.core.particles.SimpleParticleType;
 import org.jetbrains.annotations.Nullable;
 
-public class ThcSmokeParticle extends TextureSheetParticle {
+public class ThcSmokeParticle extends SingleQuadParticle {
 
     public ThcSmokeParticle(ClientLevel level, double x, double y, double z, SpriteSet sprites) {
-        super(level, x, y, z);
+        super(level, x, y, z, sprites.get(level.random));
         setAlpha(0.9F);
-        pickSprite(sprites);
         scale(3F);
         setSize(0.25F, 0.25F);
         setLifetime(random.nextInt(50) + 100);
@@ -30,8 +28,8 @@ public class ThcSmokeParticle extends TextureSheetParticle {
     }
 
     @Override
-    public ParticleRenderType getRenderType() {
-        return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
+    public SingleQuadParticle.Layer getLayer() {
+        return SingleQuadParticle.Layer.TRANSLUCENT;
     }
 
     public static class Provider implements ParticleProvider<SimpleParticleType> {
@@ -43,7 +41,7 @@ public class ThcSmokeParticle extends TextureSheetParticle {
         }
 
         @Override
-        public @Nullable Particle createParticle(SimpleParticleType options, ClientLevel level, double x, double y, double z, double xd, double yd, double zd) {
+        public @Nullable Particle createParticle(SimpleParticleType options, ClientLevel level, double x, double y, double z, double xd, double yd, double zd, net.minecraft.util.RandomSource random) {
             return new ThcSmokeParticle(level, x, y, z, sprites);
         }
     }

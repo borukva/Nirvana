@@ -1,14 +1,9 @@
 package galena.nirvana;
 
-import net.minecraft.client.color.item.ItemColor;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.world.item.alchemy.PotionContents;
+// ItemColor was removed in MC 1.21.4+. Item tinting is now handled via ItemTintSource
+// registered in item model JSON definitions. The potion bong overlay color is handled
+// through the vanilla potion_contents tint source in the model.
 
 public class NirvanaClient {
-
-    public static final ItemColor POTION_COLOR = (stack, i) -> {
-        if (i != 1) return -1;
-        return stack.getOrDefault(DataComponents.POTION_CONTENTS, PotionContents.EMPTY).getColor();
-    };
-
+    // No client-side color providers needed; tint is handled via model JSON
 }

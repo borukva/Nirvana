@@ -18,6 +18,7 @@ import galena.nirvana.world.block.entity.ModdedSkullBlockEntity;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.SkullBlockRenderer;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -44,7 +45,6 @@ public class NirvanaBlocks {
     public static final BlockEntry<HempCropBlock> HEMP = REGISTRATE
         .block("hemp", HempCropBlock::new)
         .initialProperties(() -> Blocks.WHEAT)
-        .addLayer(() -> RenderType::cutout)
         .blockstate(Services.DATAGEN::hempCrop)
         .tag(BlockTags.CROPS)
         .tag(NirvanaTags.HEMP_SEASONS_BLOCKS)
@@ -80,10 +80,9 @@ public class NirvanaBlocks {
     public static final BlockEntry<DoublePlantBlock> BLISS_BLOOM = REGISTRATE
         .block("bliss_bloom", DoublePlantBlock::new)
         .initialProperties(() -> Blocks.ROSE_BUSH)
-        .addLayer(() -> RenderType::cutout)
         .blockstate(Services.DATAGEN::blissBloom)
         .loot(Services.DATAGEN::blissBloom)
-        .tag(BlockTags.TALL_FLOWERS)
+        .tag(BlockTags.FLOWERS)
         .item()
         .tab(CreativeModeTabs.NATURAL_BLOCKS)
         .model((c, p) -> p.generated(c, p.modLoc("block/" + c.getName() + "_upper")))
@@ -94,7 +93,6 @@ public class NirvanaBlocks {
     public static final BlockEntry<? extends BushBlock> WILD_HEMP = REGISTRATE
         .block("wild_hemp", WildHempBlock::new)
         .initialProperties(() -> Blocks.FERN)
-        .addLayer(() -> RenderType::cutout)
         .blockstate(Services.DATAGEN::wildHemp)
         .loot(Services.DATAGEN::wildHemp)
         .tag(BlockTags.SMALL_FLOWERS)
@@ -119,6 +117,12 @@ public class NirvanaBlocks {
 
     public static final SkullBlock.Type REEFER_SKULL_TYPE = () -> "reefer";
 
+    static {
+        // Register REEFER_SKULL_TYPE in the global skull type map so the SkullBlock.Type.CODEC
+        // can deserialize "reefer" kind references in item model JSON (minecraft:special + minecraft:head).
+        SkullBlock.Type.TYPES.put("reefer", REEFER_SKULL_TYPE);
+    }
+
     public static final BlockEntry<? extends SkullBlock> REEFER_HEAD = REGISTRATE
         .block("reefer_head", it -> new ModdedSkullBlock(REEFER_SKULL_TYPE, it))
         .lang("Reefer Head")
@@ -135,7 +139,7 @@ public class NirvanaBlocks {
 
     public static final BlockEntityEntry<SkullBlockEntity> MODDED_SKULL = REGISTRATE
         .<SkullBlockEntity>blockEntity("skull", ($, pos, state) -> new ModdedSkullBlockEntity(pos, state))
-        .renderer(() -> SkullBlockRenderer::new)
+        .renderer(() -> ctx -> (net.minecraft.client.renderer.blockentity.BlockEntityRenderer) new SkullBlockRenderer(ctx))
         .validBlocks(REEFER_HEAD, REEFER_WALL_HEAD)
         .register();
 
@@ -143,7 +147,6 @@ public class NirvanaBlocks {
         .block("potted_wild_hemp", it -> new FlowerPotBlock(WILD_HEMP.get(), it))
         .lang("Potted Hemp")
         .initialProperties(() -> Blocks.POTTED_CACTUS)
-        .addLayer(() -> RenderType::cutout)
         .blockstate(Services.DATAGEN::pottedPlant)
         .loot(Services.DATAGEN::pottedPlant)
         .register();

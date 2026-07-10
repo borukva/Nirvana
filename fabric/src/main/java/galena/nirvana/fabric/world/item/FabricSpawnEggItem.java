@@ -12,8 +12,9 @@ public class FabricSpawnEggItem extends SpawnEggItem {
     private final NonNullSupplier<? extends EntityType<? extends Mob>> type;
 
     public FabricSpawnEggItem(NonNullSupplier<? extends EntityType<? extends Mob>> type, int primary, int secondary, Properties properties) {
-        super(null, primary, secondary, properties);
+        super(properties);
         this.type = type;
+        // Note: entity type and colors are set via DataComponents on Properties by the caller
     }
 
     @Override

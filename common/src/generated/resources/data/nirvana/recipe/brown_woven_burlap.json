@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "building",
   "key": {
-    "S": {
-      "item": "nirvana:brown_hemp_burlap"
-    }
+    "S": "nirvana:brown_hemp_burlap"
   },
   "pattern": [
     "SS",

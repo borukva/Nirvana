@@ -31,7 +31,7 @@ public class NirvanaBrewing {
         var input = isWater(from) ? Ingredient.of(NirvanaItems.BONG) : Services.PLATFORM.createNBTIngredient(from);
         var output = vanilla.mix(ingredient, from);
         if (output == from) return;
-        Services.BREWING.addRecipe(brewing, input, Ingredient.of(ingredient), output);
+        Services.BREWING.addRecipe(brewing, input, Ingredient.of(ingredient.getItem()), output);
     }
 
     private static void registerBongRecipes(PotionBrewing.Builder builder) {
@@ -55,7 +55,7 @@ public class NirvanaBrewing {
                 }
             }).toList();
 
-        BuiltInRegistries.POTION.holders()
+        BuiltInRegistries.POTION.listElements()
             .filter(it -> !it.is(NirvanaTags.NO_BONG))
             .forEach(potion -> {
                 var from = withPotion(NirvanaItems.POTION_BONG, potion);

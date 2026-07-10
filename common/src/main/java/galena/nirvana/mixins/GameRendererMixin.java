@@ -1,13 +1,16 @@
 package galena.nirvana.mixins;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.resource.CrossFrameResourcePool;
 import galena.nirvana.client.PeaceShader;
 import galena.nirvana.world.effects.PeaceEffect;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.LevelTargetBundle;
 import net.minecraft.client.renderer.PostChain;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.resources.ResourceLocation;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -16,17 +19,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(GameRenderer.class)
 public abstract class GameRendererMixin {
 
-    @Unique
-    @Nullable
-    private PostChain nirvana$shader = null;
+    @Shadow
+    @Final
+    private CrossFrameResourcePool resourcePool;
 
-    @Unique
-    private boolean nirvana$shaderFailed = false;
+    @Shadow
+    public abstract ResourceLocation currentPostEffect();
 
     @Unique
     private boolean nirvana$shouldRender() {
         var accessor = (GameRendererAccessor) this;
-        if (accessor.getPostEffect() != null) return false;
+        if (currentPostEffect() != null) return false;
         return PeaceEffect.shouldRenderShader(accessor.getMinecraft().player);
     }
 
@@ -35,38 +38,13 @@ public abstract class GameRendererMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/LevelRenderer;doEntityOutline()V")
     )
     private void renderPeaceShader(DeltaTracker delta, boolean bl, CallbackInfo ci) {
-        if(nirvana$shaderFailed) return;
-
+        if (!nirvana$shouldRender()) return;
         var accessor = (GameRendererAccessor) this;
         var minecraft = accessor.getMinecraft();
 
-        if (nirvana$shouldRender()) {
-            if (nirvana$shader == null) {
-                nirvana$shader = PeaceShader.load(minecraft);
-                if (nirvana$shader == null) {
-                    nirvana$shaderFailed = true;
-                    return;
-                }
-                nirvana$shader.resize(minecraft.getWindow().getWidth(), minecraft.getWindow().getHeight());
-            }
-
-            RenderSystem.disableBlend();
-            RenderSystem.disableDepthTest();
-            RenderSystem.resetTextureMatrix();
-            nirvana$shader.process(delta.getGameTimeDeltaTicks());
-        } else if (nirvana$shader != null) {
-            nirvana$shader.close();
-            nirvana$shader = null;
-        }
-    }
-
-    @Inject(
-            method = "resize",
-            at = @At("HEAD")
-    )
-    private void resizeShader(int width, int height, CallbackInfo ci) {
-        if (nirvana$shader != null) {
-            nirvana$shader.resize(width, height);
+        PostChain postChain = minecraft.getShaderManager().getPostChain(PeaceShader.ID, LevelTargetBundle.MAIN_TARGETS);
+        if (postChain != null) {
+            postChain.process(minecraft.getMainRenderTarget(), resourcePool);
         }
     }
 

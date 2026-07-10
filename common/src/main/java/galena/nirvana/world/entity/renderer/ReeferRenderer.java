@@ -11,8 +11,8 @@ import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.client.renderer.entity.CreeperRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.state.CreeperRenderState;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.monster.Creeper;
 
 public class ReeferRenderer extends CreeperRenderer {
 
@@ -21,11 +21,11 @@ public class ReeferRenderer extends CreeperRenderer {
 
     public ReeferRenderer(EntityRendererProvider.Context context) {
         super(context);
-        this.model = new CreeperModel<>(context.bakeLayer(LAYER));
+        this.model = new CreeperModel(context.bakeLayer(LAYER));
     }
 
     @Override
-    public ResourceLocation getTextureLocation(Creeper creeper) {
+    public ResourceLocation getTextureLocation(CreeperRenderState renderState) {
         return TEXTURE;
     }
 

@@ -5,7 +5,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import galena.nirvana.index.NirvanaTags;
 import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.ItemUseAnimation;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
@@ -14,13 +14,12 @@ public class ItemInHandRendererMixin {
 
     @WrapOperation(
             method = "renderArmWithItem",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;getUseAnimation()Lnet/minecraft/world/item/UseAnim;")
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;getUseAnimation()Lnet/minecraft/world/item/ItemUseAnimation;")
     )
-    public UseAnim hideFirstPersonJoint(ItemStack instance, Operation<UseAnim> original) {
-        if(!(instance.is(NirvanaTags.SMOKING_ITEM))) return original.call(instance);
-      //  if(player.getUseItem() != instance) return defaultAnimation;
+    public ItemUseAnimation hideFirstPersonJoint(ItemStack instance, Operation<ItemUseAnimation> original) {
+        if (!(instance.is(NirvanaTags.SMOKING_ITEM))) return original.call(instance);
 
-        return UseAnim.BOW;
+        return ItemUseAnimation.BOW;
     }
 
 }

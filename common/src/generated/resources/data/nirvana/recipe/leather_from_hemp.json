@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "c": {
-      "item": "nirvana:hemp_cloth"
-    }
+    "c": "nirvana:hemp_cloth"
   },
   "pattern": [
     "ccc",

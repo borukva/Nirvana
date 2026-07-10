@@ -2,7 +2,7 @@ package galena.nirvana.fabric.services;
 
 import static galena.nirvana.NirvanaConstants.MOD_ID;
 
-import fuzs.forgeconfigapiport.fabric.api.neoforge.v4.NeoForgeConfigRegistry;
+import fuzs.forgeconfigapiport.fabric.api.v5.ConfigRegistry;
 import galena.nirvana.config.ForgeClientConfig;
 import galena.nirvana.config.ForgeCommonConfig;
 import galena.nirvana.config.NirvanaClientConfig;
@@ -18,8 +18,8 @@ public class FabricConfigs implements IConfigs {
     private static final Pair<ForgeClientConfig, ModConfigSpec> CLIENT = new ModConfigSpec.Builder().configure(ForgeClientConfig::new);
 
     public static void register() {
-        NeoForgeConfigRegistry.INSTANCE.register(MOD_ID, ModConfig.Type.COMMON, COMMON.getRight());
-        NeoForgeConfigRegistry.INSTANCE.register(MOD_ID, ModConfig.Type.CLIENT, CLIENT.getRight());
+        ConfigRegistry.INSTANCE.register(MOD_ID, ModConfig.Type.COMMON, COMMON.getRight());
+        ConfigRegistry.INSTANCE.register(MOD_ID, ModConfig.Type.CLIENT, CLIENT.getRight());
     }
 
     @Override

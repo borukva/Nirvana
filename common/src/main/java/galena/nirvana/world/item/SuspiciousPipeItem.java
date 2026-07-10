@@ -6,17 +6,17 @@ import galena.nirvana.index.NirvanaParticles;
 import galena.nirvana.platform.Services;
 import java.util.List;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.SuspiciousStewItem;
-import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.DispenserBlock;
 
-public class SuspiciousPipeItem extends SuspiciousStewItem {
+public class SuspiciousPipeItem extends Item {
 
     public SuspiciousPipeItem(Properties properties) {
         super(properties);
@@ -28,15 +28,15 @@ public class SuspiciousPipeItem extends SuspiciousStewItem {
     }
 
     @Override
-    public UseAnim getUseAnimation(ItemStack stack) {
-        if (!getEffects(stack).isEmpty()) return UseAnim.SPYGLASS;
+    public ItemUseAnimation getUseAnimation(ItemStack stack) {
+        if (!getEffects(stack).isEmpty()) return ItemUseAnimation.SPYGLASS;
         return super.getUseAnimation(stack);
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+    public InteractionResult use(Level level, Player player, InteractionHand hand) {
         var stack = player.getItemInHand(hand);
-        if (getEffects(stack).isEmpty()) return InteractionResultHolder.pass(stack);
+        if (getEffects(stack).isEmpty()) return InteractionResult.PASS;
         return SmokingItem.startUsing(level, player, hand);
     }
 

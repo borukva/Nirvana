@@ -1,7 +1,6 @@
 plugins {
     id("com.possible-triangle.core")
     id("com.possible-triangle.common") apply false
-    id("com.possible-triangle.neoforge") apply false
     id("com.possible-triangle.fabric") apply false
 }
 
@@ -9,16 +8,8 @@ subprojects {
     apply(plugin = "com.possible-triangle.core")
 
     repositories {
-        // TODO remove
         maven {
-            url = uri("https://maven.tterrag.com/")
-            content {
-                includeGroup("com.tterrag.registrate")
-            }
-        }
-
-        maven {
-            url = uri("https://maven.ithundxr.dev/snapshots")
+            url = uri("https://maven.gegy.dev/releases")
             content {
                 includeGroup("com.tterrag.registrate")
             }

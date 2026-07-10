@@ -17,4 +17,11 @@ public class ModdedSkullBlockEntity extends SkullBlockEntity {
         return NirvanaBlocks.MODDED_SKULL.get();
     }
 
+    @Override
+    public boolean isValidBlockState(BlockState state) {
+        // SkullBlockEntity hardcodes BlockEntityType.SKULL in its constructor, but our block
+        // is registered under NirvanaBlocks.MODDED_SKULL. Redirect validation to the correct type.
+        return NirvanaBlocks.MODDED_SKULL.get().isValid(state);
+    }
+
 }

@@ -3,9 +3,7 @@
   "category": "food",
   "cookingtime": 600,
   "experience": 0.25,
-  "ingredient": {
-    "item": "nirvana:hemp"
-  },
+  "ingredient": "nirvana:hemp",
   "result": {
     "count": 1,
     "id": "nirvana:weed"

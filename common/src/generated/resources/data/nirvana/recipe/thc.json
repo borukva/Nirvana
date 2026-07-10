@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "O": {
-      "item": "nirvana:weed"
-    },
-    "X": {
-      "item": "minecraft:gunpowder"
-    }
+    "O": "nirvana:weed",
+    "X": "minecraft:gunpowder"
   },
   "pattern": [
     "XOX",

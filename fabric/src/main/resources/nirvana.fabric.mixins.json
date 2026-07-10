@@ -4,6 +4,13 @@
   "package": "galena.nirvana.fabric.mixins",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "BlockBuilderMixin",
+    "EntityBuilderMixin",
+    "FluidSpriteReloadListenerMixin",
+    "ItemBuilderMixin",
+    "BlockLegacyApiMixin",
+    "EntityTypeLegacyApiMixin",
+    "RegistryLegacyApiMixin",
     "ChickenMixin",
     "PotionBrewingMixin",
     "PotionSlotMixin",

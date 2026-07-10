@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "nirvana:thc"
-    },
-    {
-      "item": "minecraft:minecart"
-    }
+    "nirvana:thc",
+    "minecraft:minecart"
   ],
   "result": {
     "count": 1,

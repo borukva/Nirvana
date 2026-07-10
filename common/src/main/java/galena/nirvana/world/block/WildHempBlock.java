@@ -12,8 +12,9 @@ public class WildHempBlock extends BushBlock {
     }
 
     @Override
-    protected MapCodec<? extends BushBlock> codec() {
-        return CODEC;
+    @SuppressWarnings("unchecked")
+    public MapCodec<BushBlock> codec() {
+        return (MapCodec<BushBlock>) (MapCodec<?>) CODEC;
     }
 
 }

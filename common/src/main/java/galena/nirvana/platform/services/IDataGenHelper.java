@@ -7,7 +7,6 @@ import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import com.tterrag.registrate.providers.loot.RegistrateBlockLootTables;
 import com.tterrag.registrate.providers.loot.RegistrateEntityLootTables;
 import com.tterrag.registrate.util.nullness.NonNullBiConsumer;
-import galena.nirvana.world.item.DeerStalkerItem;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
@@ -60,8 +59,6 @@ public interface IDataGenHelper {
     void wovenHempBurlap(DataGenContext<Block, ? extends RotatedPillarBlock> context, RegistrateBlockstateProvider provider);
 
     <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrateRecipeProvider> wovenHempBurlap(@Nullable DyeColor color);
-
-    void deerStalker(DataGenContext<Item, DeerStalkerItem> context, RegistrateRecipeProvider provider);
 
     void pottedPlant(DataGenContext<Block, ? extends FlowerPotBlock> context, RegistrateBlockstateProvider provider);
 

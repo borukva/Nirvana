@@ -1,0 +1,11 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "minecraft:item/template_skull",
+    "model": {
+      "type": "minecraft:head",
+      "kind": "reefer",
+      "texture": "nirvana:entity/reefer"
+    }
+  }
+}

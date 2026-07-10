@@ -32,9 +32,7 @@
     }
   ],
   "key": {
-    "h": {
-      "item": "nirvana:hemp"
-    }
+    "h": "nirvana:hemp"
   },
   "pattern": [
     "h",

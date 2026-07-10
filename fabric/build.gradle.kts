@@ -27,7 +27,6 @@ repositories {
 
 dependencies {
     modInclude(libs.registrate.fabric)
-    modInclude(libs.galena.hats.fabric)
     modInclude(libs.multikulti.core.fabric)
     modInclude(libs.multikulti.registrate.fabric)
     modInclude(libs.config.api.port.fabric)

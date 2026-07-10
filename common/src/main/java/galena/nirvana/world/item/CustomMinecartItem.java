@@ -9,19 +9,19 @@ import net.minecraft.core.dispenser.DispenseItemBehavior;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.vehicle.AbstractMinecart;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.MinecartItem;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseRailBlock;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.block.state.properties.RailShape;
 import net.minecraft.world.level.gameevent.GameEvent;
 import org.jetbrains.annotations.NotNull;
 
-public class CustomMinecartItem extends MinecartItem {
+public class CustomMinecartItem extends Item {
 
     private final NonNullSupplier<EntityType<? extends AbstractMinecart>> entity;
 
@@ -31,6 +31,7 @@ public class CustomMinecartItem extends MinecartItem {
         public ItemStack execute(BlockSource source, ItemStack stack) {
             var direction = source.state().getValue(DispenserBlock.FACING);
             var level = source.level();
+            if (!(level instanceof ServerLevel serverLevel)) return stack;
 
             var center = source.center();
             var x = center.x() + (double) direction.getStepX() * 1.125;
@@ -43,7 +44,7 @@ public class CustomMinecartItem extends MinecartItem {
 
             double yOffset;
             if (state.is(BlockTags.RAILS)) {
-                yOffset = railShape.isAscending() ? 0.6 : 0.1;
+                yOffset = isAscendingRailShape(railShape) ? 0.6 : 0.1;
             } else {
                 if (!state.isAir() || !level.getBlockState(pos.below()).is(BlockTags.RAILS)) {
                     return defaultBehaviour.dispense(source, stack);
@@ -52,30 +53,35 @@ public class CustomMinecartItem extends MinecartItem {
                 var belowState = level.getBlockState(pos.below());
                 var belowRailShape = belowState.getBlock() instanceof BaseRailBlock ? belowState.getValue(((BaseRailBlock) belowState.getBlock()).getShapeProperty()) : RailShape.NORTH_SOUTH;
 
-                yOffset = direction != Direction.DOWN && belowRailShape.isAscending() ? -0.4 : -0.9;
+                yOffset = direction != Direction.DOWN && isAscendingRailShape(belowRailShape) ? -0.4 : -0.9;
             }
 
-            var minecart = place(level, x, y + yOffset, z);
+            var minecart = place(serverLevel, x, y + yOffset, z);
             if (minecart == null) return stack;
 
-            EntityType.createDefaultStackConfig(level, stack, null).accept(minecart);
-            level.addFreshEntity(minecart);
+            EntityType.createDefaultStackConfig(serverLevel, stack, null).accept(minecart);
+            serverLevel.addFreshEntity(minecart);
             stack.shrink(1);
             return stack;
         }
     };
+
+    private static boolean isAscendingRailShape(RailShape shape) {
+        return shape == RailShape.ASCENDING_EAST || shape == RailShape.ASCENDING_WEST
+                || shape == RailShape.ASCENDING_NORTH || shape == RailShape.ASCENDING_SOUTH;
+    }
 
     public void registerDispenseBehaviour() {
         DispenserBlock.registerBehavior(asItem(), dispenseBehavior);
     }
 
     public CustomMinecartItem(Properties properties, Supplier<? extends EntityType<? extends AbstractMinecart>> entity) {
-        super(AbstractMinecart.Type.TNT, properties);
+        super(properties);
         this.entity = entity::get;
     }
 
-    private AbstractMinecart place(Level level, double x, double y, double z) {
-        var minecart = entity.get().create(level);
+    private AbstractMinecart place(ServerLevel level, double x, double y, double z) {
+        var minecart = entity.get().create(level, EntitySpawnReason.DISPENSER);
         if (minecart == null) return null;
 
         minecart.setPos(x, y, z);
@@ -96,18 +102,19 @@ public class CustomMinecartItem extends MinecartItem {
             ItemStack stack = context.getItemInHand();
             if (level instanceof ServerLevel serverLevel) {
                 var railshape = state.getBlock() instanceof BaseRailBlock rail ? state.getValue(rail.getShapeProperty()) : RailShape.NORTH_SOUTH;
-                var yOffset = railshape.isAscending() ? 0.5F : 0F;
+                var yOffset = isAscendingRailShape(railshape) ? 0.5F : 0F;
 
-                var minecart = place(level, pos.getX() + 0.5F, pos.getY() + 0.0625F + yOffset, pos.getZ() + 0.5F);
+                var minecart = place(serverLevel, pos.getX() + 0.5F, pos.getY() + 0.0625F + yOffset, pos.getZ() + 0.5F);
                 if (minecart == null) return InteractionResult.FAIL;
 
                 EntityType.createDefaultStackConfig(serverLevel, stack, context.getPlayer()).accept(minecart);
-                level.addFreshEntity(minecart);
+                serverLevel.addFreshEntity(minecart);
                 level.gameEvent(GameEvent.ENTITY_PLACE, pos, GameEvent.Context.of(context.getPlayer(), level.getBlockState(pos.below())));
+
+                stack.shrink(1);
             }
 
-            stack.shrink(1);
-            return InteractionResult.sidedSuccess(level.isClientSide);
+            return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
         }
     }
 

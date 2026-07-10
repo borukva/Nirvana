@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "nirvana:hemp"
-    }
+    "nirvana:hemp"
   ],
   "result": {
     "count": 2,

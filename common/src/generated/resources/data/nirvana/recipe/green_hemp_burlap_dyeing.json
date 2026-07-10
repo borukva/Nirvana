@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shapeless",
   "category": "building",
   "ingredients": [
-    {
-      "item": "nirvana:hemp_burlap"
-    },
-    {
-      "tag": "c:dyes/green"
-    }
+    "nirvana:hemp_burlap",
+    "#c:dyes/green"
   ],
   "result": {
     "count": 1,

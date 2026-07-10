@@ -100,12 +100,14 @@ public class PeaceEffect extends MobEffect implements IStackingEffect {
                 ).normalize().scale(centerRange);
                 var reference = target.position().add(vec);
 
-                level.findSupportingBlock(reefer, new AABB(reference, reference).inflate(rangeAround))
-                        .map(it -> Vec3.upFromBottomCenterOf(it, 1))
-                        .ifPresent(pos -> {
-                            reefer.setPos(pos);
-                            level.addFreshEntity(reefer);
-                        });
+                // Mirrors chorus fruit / enderman teleport (LivingEntity#randomTeleport):
+                // scans downward from the target position for solid ground and validates
+                // there's no block collision at the landing spot, instead of just grabbing
+                // the nearest solid block regardless of whether the reefer would fit there.
+                reefer.setPos(reference);
+                if (reefer.randomTeleport(reference.x(), reference.y(), reference.z(), false)) {
+                    level.addFreshEntity(reefer);
+                }
             }
         }
     }

@@ -4,9 +4,7 @@
   "result": {
     "id": "nirvana:herbal_salve"
   },
-  "base": {
-    "item": "minecraft:bowl"
-  },
+  "base": "minecraft:bowl",
   "flowers": 3,
   "weed": 3,
   "durationFactor": 3

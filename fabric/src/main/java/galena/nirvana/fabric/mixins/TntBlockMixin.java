@@ -1,6 +1,7 @@
 package galena.nirvana.fabric.mixins;
 
-import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import galena.nirvana.world.block.ICustomTntBlock;
 import net.minecraft.core.BlockPos;
@@ -20,68 +21,77 @@ import org.spongepowered.asm.mixin.injection.At;
 public class TntBlockMixin {
 
     @Unique
-    private boolean onCaughtFire(BlockState state, Level level, BlockPos pos, @Nullable Direction face, @Nullable LivingEntity igniter) {
-        if(this instanceof ICustomTntBlock tnt) {
+    private boolean shouldPrime(BlockState state, Level level, BlockPos pos, @Nullable Direction face, @Nullable LivingEntity igniter) {
+        if (this instanceof ICustomTntBlock tnt) {
             tnt.onCaughtFire(state, level, pos, face, igniter);
             return false;
         }
-
         return true;
     }
 
-    @WrapWithCondition(
+    @WrapOperation(
             method = "onPlace",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/world/level/block/TntBlock;explode(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;)V"
+                    target = "Lnet/minecraft/world/level/block/TntBlock;prime(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;)Z"
             )
     )
-    public boolean onPlace(Level level, BlockPos pos, @Local(ordinal = 0, argsOnly = true) BlockState state) {
-        return onCaughtFire(state, level, pos, null, null);
+    public boolean onPlace(Level level, BlockPos pos, Operation<Boolean> original,
+            @Local(ordinal = 0, argsOnly = true) BlockState state) {
+        if (!shouldPrime(state, level, pos, null, null)) return false;
+        return original.call(level, pos);
     }
 
-    @WrapWithCondition(
+    @WrapOperation(
             method = "neighborChanged",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/world/level/block/TntBlock;explode(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;)V"
+                    target = "Lnet/minecraft/world/level/block/TntBlock;prime(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;)Z"
             )
     )
-    public boolean neighborChanged(Level level, BlockPos pos, @Local(ordinal = 0, argsOnly = true) BlockState state) {
-        return onCaughtFire(state, level, pos, null, null);
+    public boolean neighborChanged(Level level, BlockPos pos, Operation<Boolean> original,
+            @Local(ordinal = 0, argsOnly = true) BlockState state) {
+        if (!shouldPrime(state, level, pos, null, null)) return false;
+        return original.call(level, pos);
     }
 
-    @WrapWithCondition(
+    @WrapOperation(
             method = "playerWillDestroy",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/world/level/block/TntBlock;explode(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;)V"
+                    target = "Lnet/minecraft/world/level/block/TntBlock;prime(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;)Z"
             )
     )
-    public boolean playerWillDestroy(Level level, BlockPos pos, @Local(ordinal = 0, argsOnly = true) BlockState state, @Local(argsOnly = true) Player player) {
-        return onCaughtFire(state, level, pos, null, player);
+    public boolean playerWillDestroy(Level level, BlockPos pos, Operation<Boolean> original,
+            @Local(argsOnly = true) BlockState state, @Local(argsOnly = true) Player player) {
+        if (!shouldPrime(state, level, pos, null, player)) return false;
+        return original.call(level, pos);
     }
 
-    @WrapWithCondition(
-        method = "useItemOn",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/world/level/block/TntBlock;explode(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/LivingEntity;)V"
-        )
+    @WrapOperation(
+            method = "useItemOn",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/level/block/TntBlock;prime(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/LivingEntity;)Z"
+            )
     )
-    public boolean use(Level level, BlockPos pos, LivingEntity igniter, @Local(ordinal = 0, argsOnly = true) BlockState state, @Local(argsOnly = true) BlockHitResult hit) {
-        return onCaughtFire(state, level, pos, hit.getDirection(), igniter);
+    public boolean useItemOn(Level level, BlockPos pos, LivingEntity igniter, Operation<Boolean> original,
+            @Local(ordinal = 0, argsOnly = true) BlockState state, @Local(argsOnly = true) BlockHitResult hit) {
+        if (!shouldPrime(state, level, pos, hit.getDirection(), igniter)) return false;
+        return original.call(level, pos, igniter);
     }
 
-    @WrapWithCondition(
-        method = "onProjectileHit",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/world/level/block/TntBlock;explode(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/LivingEntity;)V"
-        )
+    @WrapOperation(
+            method = "onProjectileHit",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/level/block/TntBlock;prime(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/LivingEntity;)Z"
+            )
     )
-    public boolean onProjectileHit(Level level, BlockPos pos, LivingEntity igniter, @Local(ordinal = 0, argsOnly = true) BlockState state, @Local(argsOnly = true) BlockHitResult hit) {
-        return onCaughtFire(state, level, pos, hit.getDirection(), igniter);
+    public boolean onProjectileHit(Level level, BlockPos pos, LivingEntity igniter, Operation<Boolean> original,
+            @Local(ordinal = 0, argsOnly = true) BlockState state, @Local(argsOnly = true) BlockHitResult hit) {
+        if (!shouldPrime(state, level, pos, hit.getDirection(), igniter)) return false;
+        return original.call(level, pos, igniter);
     }
 
 }

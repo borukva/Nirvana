@@ -66,7 +66,7 @@ public class FabricPlatformHelper implements IPlatformHelper {
 
     @Override
     public Ingredient createNBTIngredient(ItemStack stack) {
-        var base = Ingredient.of(stack);
+        var base = Ingredient.of(stack.getItem());
         var components = stack.getComponentsPatch();
         return new ComponentsIngredient(base, components).toVanilla();
     }

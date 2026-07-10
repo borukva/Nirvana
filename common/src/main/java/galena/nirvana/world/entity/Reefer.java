@@ -1,6 +1,7 @@
 package galena.nirvana.world.entity;
 
 import galena.nirvana.index.NirvanaItems;
+import galena.nirvana.mixins.CreeperAccessor;
 import galena.nirvana.world.THCCloud;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
@@ -23,10 +24,13 @@ public class Reefer extends Creeper implements ICustomCreeper {
     @Override
     protected void dropCustomDeathLoot(ServerLevel level, DamageSource source, boolean bl) {
         var cause = source.getEntity();
-        if (cause != this && cause instanceof Creeper creeper) {
-            if (creeper.canDropMobsSkull()) {
-                creeper.increaseDroppedSkulls();
-                spawnAtLocation(NirvanaItems.REEFER_HEAD.get());
+        // canDropMobsSkull()/increaseDroppedSkulls() were removed in 1.21.9; CreeperAccessor
+        // reproduces the same one-skull-per-explosion cap via the underlying droppedSkulls flag.
+        if (cause != this && cause instanceof Creeper creeper && creeper.isPowered()) {
+            var accessor = (CreeperAccessor) creeper;
+            if (!accessor.getDroppedSkulls()) {
+                accessor.setDroppedSkulls(true);
+                spawnAtLocation(level, NirvanaItems.REEFER_HEAD.get());
             }
         }
     }

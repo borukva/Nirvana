@@ -6,7 +6,6 @@ import com.tterrag.registrate.util.nullness.NonNullConsumer;
 import com.tterrag.registrate.util.nullness.NonNullFunction;
 import com.tterrag.registrate.util.nullness.NonNullSupplier;
 import galena.nirvana.platform.registrate.EntityPropertiesBuilder;
-import galena.nirvana.world.item.DeerStalkerItem;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -20,12 +19,10 @@ public interface IPlatformHelper {
 
     MultikultiRegistrate<?> getRegistrate();
 
-    default DeerStalkerItem createDeerstalkerItem(Item.Properties properties) {
-        return new DeerStalkerItem(properties);
-    }
-
     default Item createSpawnEggItem(NonNullSupplier<? extends EntityType<? extends Mob>> type, int primary, int secodary, Item.Properties properties) {
-        return new SpawnEggItem(type.get(), primary, secodary, properties);
+        // SpawnEggItem constructor changed in MC 1.21.4+ - entity type and colors set via DataComponents
+        // Override this in platform-specific implementation
+        return new SpawnEggItem(properties);
     }
 
     <E extends Entity, P> NonNullFunction<EntityBuilder<E, P>, EntityBuilder<E, P>> entityProperties(NonNullConsumer<EntityPropertiesBuilder> factory);

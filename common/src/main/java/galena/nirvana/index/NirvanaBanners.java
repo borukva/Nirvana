@@ -15,7 +15,10 @@ public class NirvanaBanners {
     private static final MultikultiRegistrate<?> REGISTRATE = Services.PLATFORM.getRegistrate();
 
     public static final RegistryEntry<BannerPattern, BannerPattern> PEACE = REGISTRATE
-            .dataDriven("peace", Registries.BANNER_PATTERN, () -> new BannerPattern(NirvanaConstants.createId("peace"), "peace"))
+            .dataDriven("peace", Registries.BANNER_PATTERN, () -> {
+                var id = NirvanaConstants.createId("peace");
+                return new BannerPattern(id, id.toLanguageKey("block.minecraft.banner"));
+            })
             .setData(ProviderType.LANG, (context, provider) -> {
                 for (DyeColor dye : DyeColor.values()) {
                     var key = context.getId().toLanguageKey("block.minecraft.banner", dye.getSerializedName());
