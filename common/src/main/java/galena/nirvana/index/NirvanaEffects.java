@@ -37,7 +37,8 @@ public class NirvanaEffects {
 
     public static boolean arePeaceful(Entity target, LivingEntity attacker) {
         if (!(target instanceof LivingEntity living)) return false;
-        return attacker.hasEffect(NirvanaEffects.PEACE) || living.hasEffect(NirvanaEffects.PEACE);
+        var holder = peaceHolder();
+        return attacker.hasEffect(holder) || living.hasEffect(holder);
     }
 
     public static void register() {

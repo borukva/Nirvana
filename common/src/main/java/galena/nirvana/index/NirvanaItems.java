@@ -24,6 +24,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.recipes.RecipeCategory;
+import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.food.FoodProperties;
@@ -175,6 +176,15 @@ public class NirvanaItems {
         .properties(it -> it.rarity(Rarity.UNCOMMON))
         .model(Services.DATAGEN::pipe)
         .tab(CreativeModeTabs.TOOLS_AND_UTILITIES)
+        .recipe((c, p) -> ShapedRecipeBuilder
+            .shaped(p.getProvider().lookupOrThrow(Registries.ITEM), RecipeCategory.TOOLS, c.get())
+            .define('S', Items.SPRUCE_PLANKS)
+            .define('G', Items.RAW_GOLD)
+            .pattern("S  ")
+            .pattern("SSG")
+            .unlockedBy("has_spruce_planks", RegistrateRecipeProvider.has(Items.SPRUCE_PLANKS))
+            .save(p)
+        )
         .register();
 
     public static final ItemEntry<? extends Item> STUFFED_PIPE = REGISTRATE

@@ -33,7 +33,6 @@ dependencies {
 
     modCompileOnly(libs.jei.common.api)
     modCompileOnly(libs.jei.fabric.api)
-    modCompileOnly(libs.jei.lib)
 
     // TODO re-add once create fabric is updated to 1.21.1
     // modCompileOnly("com.simibubi.create:create-fabric-${mc_version}:${create_fabric_version}") {

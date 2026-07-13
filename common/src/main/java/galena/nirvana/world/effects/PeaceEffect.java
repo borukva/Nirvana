@@ -38,7 +38,7 @@ public class PeaceEffect extends MobEffect implements IStackingEffect {
     public static boolean shouldRenderShader(@Nullable Player player) {
         if (!Services.CONFIG.client().renderPeaceShader()) return false;
         return Optional.ofNullable(player)
-                .map(it -> it.getEffect(NirvanaEffects.PEACE))
+                .map(it -> it.getEffect(NirvanaEffects.peaceHolder()))
                 .filter(it -> fulfills(it.getAmplifier(), Services.CONFIG.common().nauseaAfterHits()))
                 .isPresent();
     }
@@ -53,7 +53,8 @@ public class PeaceEffect extends MobEffect implements IStackingEffect {
         var hitsTaken = instance.getAmplifier() + 1;
 
         if (fulfills(hitsTaken, Services.CONFIG.common().reeferAfterHits())) {
-            spawnReefers(target, level);
+            // TODO: спавнить трильйон криперів за інвентар використаних косячків
+            // spawnReefers(target, level);
             transformCreepers(target.position(), level);
         }
 
