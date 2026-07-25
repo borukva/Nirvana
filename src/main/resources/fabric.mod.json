@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "nirvana",
+  "version": "${version}",
+  "name": "Nirvana",
+  "description": "Nirvana is a mod that aims to add Hemp and herb in a vanilla friendly way! Get ready to make some Herb Rolled in Paper, Oddly Shaped Glasses, Herbal Salves, Burlap and much more.",
+  "authors": [
+    "possible_triangle"
+  ],
+  "contact": {
+    "sources": "https://github.com/teamgalena/nirvana",
+    "issues": "https://github.com/teamgalena/nirvana/issues"
+  },
+  "license": "https://github.com/teamgalena/nirvana/blob/1.21.x/LICENSE.md",
+  "environment": "*",
+  "icon": "assets/nirvana/icon.png",
+  "entrypoints": {
+    "main": [
+      "galena.nirvana.Nirvana"
+    ],
+    "fabric-datagen": [
+      "galena.nirvana.NirvanaDataGenerator"
+    ]
+  },
+  "mixins": [
+    "nirvana.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.19.3",
+    "minecraft": "~1.21.10",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}

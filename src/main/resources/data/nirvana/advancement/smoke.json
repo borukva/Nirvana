@@ -1,0 +1,22 @@
+{
+  "display": {
+    "icon": {
+      "id": "nirvana:joint"
+    },
+    "title": "Пахнуть начінаєт всьо странєє",
+    "description": "Закуріть",
+    "frame": "task",
+    "announce_to_chat": false
+  },
+  "parent": "nirvana:root",
+  "criteria": {
+    "trigger": {
+      "trigger": "minecraft:effects_changed",
+      "conditions": {
+        "effects": {
+          "nirvana:peace": {}
+        }
+      }
+    }
+  }
+}

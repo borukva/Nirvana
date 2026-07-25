@@ -1,0 +1,21 @@
+{
+  "display": {
+    "icon": {
+      "id": "nirvana:weed_brownie"
+    },
+    "title": "Дивні пироги",
+    "description": "Зїжте конопляне тістечко",
+    "announce_to_chat": false
+  },
+  "parent": "nirvana:root",
+  "criteria": {
+    "trigger": {
+      "trigger": "minecraft:consume_item",
+      "conditions": {
+        "item": {
+          "items": "nirvana:weed_brownie"
+        }
+      }
+    }
+  }
+}

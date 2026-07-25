@@ -1,8 +1,0 @@
-{
-  "parent": "minecraft:block/cube_bottom_top",
-  "textures": {
-    "bottom": "nirvana:block/thc_bottom",
-    "side": "nirvana:block/thc_side",
-    "top": "nirvana:block/thc_top"
-  }
-}

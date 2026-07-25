@@ -1,0 +1,24 @@
+{
+  "display": {
+    "icon": {
+      "id": "nirvana:weed_crate"
+    },
+    "title": "Да не торч я!",
+    "description": "Майте безперирвний ефект миру протягом 10 хвилин",
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": true
+  },
+  "parent": "nirvana:smoke",
+  "criteria": {
+    "ten_minute_jump": {
+      "trigger": "peace_duration",
+      "conditions": {
+        "duration": {
+          "min": 12000
+        }
+      }
+    }
+  }
+}

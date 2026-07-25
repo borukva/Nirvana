@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "nirvana:block/orange_hemp_burlap",
+      "y": 270
+    },
+    "facing=north": {
+      "model": "nirvana:block/orange_hemp_burlap",
+      "y": 180
+    },
+    "facing=south": {
+      "model": "nirvana:block/orange_hemp_burlap"
+    },
+    "facing=west": {
+      "model": "nirvana:block/orange_hemp_burlap",
+      "y": 90
+    }
+  }
+}

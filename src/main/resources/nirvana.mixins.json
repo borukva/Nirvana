@@ -1,0 +1,23 @@
+{
+  "required": true,
+  "package": "galena.nirvana.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "BrewingRecipeRegistryMixin",
+    "BrewingStandBlockEntityMixin",
+    "CreeperEntityAccessor",
+    "CreeperEntityMixin",
+    "EntityMixin",
+    "LivingEntityMixin",
+    "MobEntityMixin",
+    "PotionSlotMixin",
+    "TntBlockMixin",
+    "TntEntityMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+	}
+}

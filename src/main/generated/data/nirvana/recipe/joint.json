@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "nirvana:weed",
+    "minecraft:paper"
+  ],
+  "result": {
+    "count": 1,
+    "id": "nirvana:joint"
+  }
+}

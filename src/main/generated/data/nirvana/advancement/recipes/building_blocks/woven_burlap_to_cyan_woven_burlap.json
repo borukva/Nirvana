@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "nirvana:woven_burlap_to_cyan_woven_burlap"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "has_woven_burlap": {
+      "conditions": {
+        "items": [
+          {
+            "items": "nirvana:woven_burlap"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_woven_burlap"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "nirvana:woven_burlap_to_cyan_woven_burlap"
+    ]
+  }
+}

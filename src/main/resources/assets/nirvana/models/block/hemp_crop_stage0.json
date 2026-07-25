@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "nirvana:block/hemp_crop_stage0"
+  }
+}

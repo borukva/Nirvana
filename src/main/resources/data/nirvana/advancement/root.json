@@ -1,0 +1,19 @@
+{
+  "display": {
+    "icon": {
+      "id": "nirvana:hemp",
+      "count": 1
+    },
+    "title": "Нірвана",
+    "description": "Який чудесний світ новий!",
+    "background": "nirvana:block/yellow_hemp_burlap",
+    "frame": "task",
+    "show_toast": false,
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "trigger": {
+      "trigger": "minecraft:tick"
+    }
+  }
+}

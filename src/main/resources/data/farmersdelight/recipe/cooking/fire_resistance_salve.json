@@ -1,0 +1,26 @@
+{
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "farmersdelight"
+      ]
+    }
+  ],
+  "type": "farmersdelight:cooking",
+  "category": "meals",
+  "container": {
+    "count": 1,
+    "id": "minecraft:bowl"
+  },
+  "experience": 1.0,
+  "ingredients": [
+    "minecraft:magma_cream",
+    "nirvana:weed",
+    "nirvana:weed"
+  ],
+  "result": {
+    "count": 1,
+    "id": "nirvana:fire_resistance_salve"
+  }
+}

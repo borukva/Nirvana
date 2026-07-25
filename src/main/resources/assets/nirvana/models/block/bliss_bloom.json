@@ -1,0 +1,45 @@
+{
+  "textures": {
+    "particle": "nirvana:block/bliss_bloom_lower",
+    "lower": "nirvana:block/bliss_bloom_lower",
+    "upper": "nirvana:block/bliss_bloom_upper"
+  },
+  "elements": [
+    {
+      "from": [0.8, 0, 8],
+      "to": [15.2, 16, 8],
+      "rotation": {"origin": [8, 8, 8], "axis": "y", "angle": 45, "rescale": true},
+      "faces": {
+        "north": {"uv": [0, 0, 16, 16], "texture": "#lower"},
+        "south": {"uv": [0, 0, 16, 16], "texture": "#lower"}
+      }
+    },
+    {
+      "from": [8, 0, 0.8],
+      "to": [8, 16, 15.2],
+      "rotation": {"origin": [8, 8, 8], "axis": "y", "angle": 45, "rescale": true},
+      "faces": {
+        "east": {"uv": [0, 0, 16, 16], "texture": "#lower"},
+        "west": {"uv": [0, 0, 16, 16], "texture": "#lower"}
+      }
+    },
+    {
+      "from": [0.8, 16, 8],
+      "to": [15.2, 32, 8],
+      "rotation": {"origin": [8, 24, 8], "axis": "y", "angle": 45, "rescale": true},
+      "faces": {
+        "north": {"uv": [0, 0, 16, 16], "texture": "#upper"},
+        "south": {"uv": [0, 0, 16, 16], "texture": "#upper"}
+      }
+    },
+    {
+      "from": [8, 16, 0.8],
+      "to": [8, 32, 15.2],
+      "rotation": {"origin": [8, 24, 8], "axis": "y", "angle": 45, "rescale": true},
+      "faces": {
+        "east": {"uv": [0, 0, 16, 16], "texture": "#upper"},
+        "west": {"uv": [0, 0, 16, 16], "texture": "#upper"}
+      }
+    }
+  ]
+}

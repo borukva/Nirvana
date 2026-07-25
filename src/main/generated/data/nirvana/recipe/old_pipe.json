@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": "minecraft:resin_clump",
+    "G": "minecraft:spruce_planks",
+    "I": "minecraft:raw_gold",
+    "S": "minecraft:iron_ingot"
+  },
+  "pattern": [
+    "  S",
+    "GIG",
+    "BG "
+  ],
+  "result": {
+    "count": 1,
+    "id": "nirvana:old_pipe"
+  }
+}

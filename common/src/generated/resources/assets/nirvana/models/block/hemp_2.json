@@ -1,6 +1,0 @@
-{
-  "parent": "nirvana:block/crop_cross",
-  "textures": {
-    "cross": "nirvana:block/hemp_2"
-  }
-}

@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    "nirvana:hemp_seeds",
+    "minecraft:wheat",
+    "minecraft:cocoa_beans"
+  ],
+  "result": {
+    "count": 2,
+    "id": "nirvana:weed_brownie"
+  }
+}

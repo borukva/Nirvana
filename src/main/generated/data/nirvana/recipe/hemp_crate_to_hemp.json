@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "nirvana:hemp_crate"
+  ],
+  "result": {
+    "count": 9,
+    "id": "nirvana:hemp"
+  }
+}

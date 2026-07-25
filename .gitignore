@@ -24,3 +24,7 @@ run
 runs
 
 **.env
+
+.claude
+
+src/main/generated/.cache

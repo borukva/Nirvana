@@ -1,6 +1,0 @@
-{
-  "parent": "nirvana:item/pipe_in_hand",
-  "textures": {
-    "layer0": "nirvana:item/old_pipe"
-  }
-}

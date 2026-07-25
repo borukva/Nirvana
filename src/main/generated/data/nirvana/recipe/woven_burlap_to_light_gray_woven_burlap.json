@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    "nirvana:woven_burlap",
+    "minecraft:light_gray_dye"
+  ],
+  "result": {
+    "count": 1,
+    "id": "nirvana:light_gray_woven_burlap"
+  }
+}

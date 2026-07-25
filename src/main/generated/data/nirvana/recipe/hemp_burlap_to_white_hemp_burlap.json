@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    "nirvana:hemp_burlap",
+    "minecraft:white_dye"
+  ],
+  "result": {
+    "count": 1,
+    "id": "nirvana:white_hemp_burlap"
+  }
+}
