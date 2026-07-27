@@ -5,7 +5,6 @@ import eu.pb4.polymer.core.api.item.PolymerItem;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.BowItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -23,8 +22,14 @@ import xyz.nucleoid.packettweaker.PacketContext;
  * A bong variant pre-filled with a vanilla potion's effects (dynamic per-stack, via the stack's
  * own {@code POTION_CONTENTS} component), rather than a fixed effect list baked into the item
  * like {@link SmokingItem}. One stack per registered potion shows up in the creative tab.
+ * <p>
+ * Disguised as a genuine {@code Items.POTION} (not {@code Items.BOW}) so it can actually be
+ * dragged into a brewing stand's potion slot by hand - see {@link BongItem} for why. The disguise
+ * item and the use-animation are independent as far as Polymer is concerned, so the bow-draw
+ * "smoking" animation is kept; this also no longer needs the BowItem-arrow-firing workaround
+ * since it doesn't extend {@code BowItem} at all.
  */
-public class PotionBongItem extends BowItem implements PolymerItem {
+public class PotionBongItem extends Item implements PolymerItem {
     private static final int COOLDOWN_TICKS = 20;
     private static final int USE_DURATION = 40;
 
@@ -41,7 +46,7 @@ public class PotionBongItem extends BowItem implements PolymerItem {
 
     @Override
     public Item getPolymerItem(ItemStack itemStack, PacketContext context) {
-        return Items.BOW;
+        return Items.POTION;
     }
 
     @Override
@@ -57,15 +62,6 @@ public class PotionBongItem extends BowItem implements PolymerItem {
     @Override
     public int getMaxUseTime(ItemStack stack, LivingEntity user) {
         return USE_DURATION;
-    }
-
-    /**
-     * Without this, BowItem's own vanilla implementation fires an arrow if the use is released
-     * before getMaxUseTime is reached.
-     */
-    @Override
-    public boolean onStoppedUsing(ItemStack stack, World world, LivingEntity user, int remainingUseTicks) {
-        return false;
     }
 
     @Override
@@ -91,23 +87,26 @@ public class PotionBongItem extends BowItem implements PolymerItem {
             SmokingItem.scheduleSmoke((ServerWorld) world, user.getUuid());
             contents.apply(user, 1.0F);
 
+            boolean creative = false;
             if (user instanceof PlayerEntity player) {
                 player.getItemCooldownManager().set(stack, COOLDOWN_TICKS);
                 player.incrementStat(Stats.USED.getOrCreateStat(this));
+                creative = player.getAbilities().creativeMode;
             }
 
-            if (stack.isDamageable()) {
-                stack.setDamage(stack.getDamage() + 1);
-                if (stack.getDamage() >= stack.getMaxDamage()) {
+            // Creative mode never spends the item, same as vanilla consumables.
+            if (!creative) {
+                if (stack.isDamageable()) {
+                    stack.setDamage(stack.getDamage() + 1);
+                    if (stack.getDamage() >= stack.getMaxDamage()) {
+                        return new ItemStack(Items.GLASS_BOTTLE);
+                    }
+                } else {
                     return new ItemStack(Items.GLASS_BOTTLE);
                 }
-            } else {
-                return new ItemStack(Items.GLASS_BOTTLE);
             }
         }
 
-        // Deliberately not calling super.finishUsing(...): BowItem's own implementation looks
-        // for an arrow to fire, which has nothing to do with this item.
         return stack;
     }
 }

@@ -1,0 +1,287 @@
+{
+  "ambientocclusion": false,
+  "texture_size": [
+    64,
+    64
+  ],
+  "textures": {
+    "particle": "nirvana:block/reefer",
+    "skin": "nirvana:block/reefer"
+  },
+  "__display_comment": "fixed stays identity - that's the context the placed block's display element renders in, and any transform here would shift/scale it in the world. Every other context is the item form: scaled well down, since this model is ~23px tall against a normal item's 16, and nudged down because its visual centre sits above the model origin.",
+  "display": {
+    "fixed": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ]
+    },
+    "gui": {
+      "rotation": [
+        30,
+        225,
+        0
+      ],
+      "translation": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "scale": [
+        0.75,
+        0.75,
+        0.75
+      ]
+    },
+    "ground": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "scale": [
+        0.4,
+        0.4,
+        0.4
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        45,
+        45,
+        0
+      ],
+      "translation": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "scale": [
+        0.45,
+        0.45,
+        0.45
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        45,
+        45,
+        0
+      ],
+      "translation": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "scale": [
+        0.45,
+        0.45,
+        0.45
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        45,
+        0
+      ],
+      "translation": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        0,
+        225,
+        0
+      ],
+      "translation": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    "head": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        0,
+        -7,
+        0
+      ],
+      "scale": [
+        1.8,
+        1.8,
+        1.8
+      ]
+    }
+  },
+  "elements": [
+    {
+      "__comment": "Same head as the mob wears, but inflated half a pixel sideways and on top so it fully covers the vanilla skull the client renders underneath (see ReeferHeadBlock). Deliberately NOT inflated downwards, which would sink it into the ground.",
+      "from": [
+        3.5,
+        8,
+        3.5
+      ],
+      "to": [
+        12.5,
+        16.5,
+        12.5
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            0,
+            2,
+            2,
+            4
+          ],
+          "texture": "#skin"
+        },
+        "west": {
+          "uv": [
+            4,
+            2,
+            6,
+            4
+          ],
+          "texture": "#skin"
+        },
+        "up": {
+          "uv": [
+            2,
+            0,
+            4,
+            2
+          ],
+          "texture": "#skin"
+        },
+        "down": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#skin"
+        },
+        "north": {
+          "uv": [
+            2,
+            2,
+            4,
+            4
+          ],
+          "texture": "#skin"
+        },
+        "south": {
+          "uv": [
+            6,
+            2,
+            8,
+            4
+          ],
+          "texture": "#skin"
+        }
+      }
+    },
+    {
+      "__comment": "leafy crown, large flat plane - pushed forward to clear the inflated head cube's front face, otherwise the two planes z-fight",
+      "from": [
+        -2,
+        1,
+        3
+      ],
+      "to": [
+        18,
+        24,
+        3
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            8,
+            5,
+            13.75
+          ],
+          "texture": "#skin"
+        },
+        "south": {
+          "uv": [
+            0,
+            8,
+            5,
+            13.75
+          ],
+          "texture": "#skin"
+        }
+      }
+    },
+    {
+      "__comment": "leafy crown, thin brim plane - likewise moved just in front of the inflated cube",
+      "from": [
+        -2,
+        11,
+        3.4
+      ],
+      "to": [
+        18,
+        13,
+        3.4
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            11,
+            15.5,
+            16,
+            16
+          ],
+          "texture": "#skin"
+        },
+        "south": {
+          "uv": [
+            11,
+            15.5,
+            16,
+            16
+          ],
+          "texture": "#skin"
+        }
+      }
+    }
+  ]
+}

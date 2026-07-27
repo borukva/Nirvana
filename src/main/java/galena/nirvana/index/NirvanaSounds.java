@@ -7,6 +7,8 @@ import net.minecraft.util.Identifier;
 public class NirvanaSounds {
     public static SoundEvent SMOKING  = registerSoundEvent("item.use.smoking");
     public static SoundEvent BONG  = registerSoundEvent("item.use.bong");
+    /** Played a beat after a hit, when the smoke actually comes back out. */
+    public static SoundEvent BLOW  = registerSoundEvent("item.use.blow");
     public static SoundEvent MUSIC_DISC_JAM  = registerSoundEvent("music_disc.jam");
     public static SoundEvent HERBAL_SALVE  = registerSoundEvent("item.use.herbal_salve");
     private static SoundEvent registerSoundEvent(String name) {

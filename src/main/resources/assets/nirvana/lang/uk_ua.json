@@ -51,7 +51,7 @@
 
   "block.nirvana.reefer_head": "Голова ріфера",
 
-  "block.nirvana.thc": "ТГК",
+  "block.nirvana.thc": "Конопляний динаміт",
   "block.nirvana.weed_crate": "Ящик бутонів коноплі",
 
   "block.nirvana.white_hemp_burlap": "Біла мішковина",
@@ -63,8 +63,9 @@
   "effect.nirvana.peace": "Мир",
   "effect.nirvana.peace.description": "Блаженна аура наповнює твою голову",
   "entity.nirvana.reefer": "Охолодження",
-  "entity.nirvana.thc": "ТГК",
-  "entity.nirvana.thc_minecart": "Вагонетка з ТГК",
+  "entity.nirvana.thc": "Конопляний динаміт",
+  "entity.nirvana.thc_minecart": "Вагонетка з конопляним динамітом",
+  "item.nirvana.thc_minecart": "Вагонетка з конопляним динамітом",
   "item.nirvana.bong": "Бонг",
   "item.nirvana.potion_bong": "Бонг",
   "item.nirvana.hemp_cloth": "Конопляна тканина",

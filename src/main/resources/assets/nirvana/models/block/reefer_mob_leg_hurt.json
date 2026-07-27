@@ -1,0 +1,118 @@
+{
+  "ambientocclusion": false,
+  "texture_size": [
+    64,
+    64
+  ],
+  "textures": {
+    "particle": "nirvana:block/reefer_hurt",
+    "skin": "nirvana:block/reefer_hurt"
+  },
+  "display": {
+    "fixed": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ]
+    },
+    "ground": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ]
+    }
+  },
+  "elements": [
+    {
+      "__comment": "leg hanging down from the hip - hip sits at model (8,8,8), the point that lands on this element's own origin, so the walk swing rotates about the hip",
+      "from": [
+        6,
+        2,
+        6
+      ],
+      "to": [
+        10,
+        8,
+        10
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            0,
+            5,
+            1,
+            6.5
+          ],
+          "texture": "#skin"
+        },
+        "west": {
+          "uv": [
+            2,
+            5,
+            3,
+            6.5
+          ],
+          "texture": "#skin"
+        },
+        "up": {
+          "uv": [
+            1,
+            4,
+            2,
+            5
+          ],
+          "texture": "#skin"
+        },
+        "down": {
+          "uv": [
+            2,
+            4,
+            3,
+            5
+          ],
+          "texture": "#skin"
+        },
+        "north": {
+          "uv": [
+            1,
+            5,
+            2,
+            6.5
+          ],
+          "texture": "#skin"
+        },
+        "south": {
+          "uv": [
+            3,
+            5,
+            4,
+            6.5
+          ],
+          "texture": "#skin"
+        }
+      }
+    }
+  ]
+}

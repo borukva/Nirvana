@@ -12,6 +12,8 @@ import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.SuspiciousStewIngredient;
 import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.EquippableComponent;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.component.type.PotionContentsComponent;
 import net.minecraft.component.type.SuspiciousStewEffectsComponent;
 import net.minecraft.entity.effect.StatusEffects;
@@ -46,8 +48,17 @@ public class NirvanaBlocks {
     public static final Block BLISS_BLOOM = registerBlock("bliss_bloom", BlissBloom::new, Block.Settings.copy(Blocks.ROSE_BUSH));
     public static final BlockItem BLISS_BLOOM_ITEM = registerBlockItem("bliss_bloom", settings -> new BlissBloomItem(BLISS_BLOOM, settings), new Item.Settings());
 
-    public static final Block REEFER_HEAD = registerBlock("reefer_head", ReeferHeadBlock::new, Block.Settings.copy(Blocks.CREEPER_HEAD));
-    public static final BlockItem REEFER_HEAD_ITEM = registerBlockItem("reefer_head", settings -> new NirvanaTexturedBlockItem(REEFER_HEAD, settings), new Item.Settings());
+    // Both explicitly get their own loot table: Settings.copy() carries the creeper head's along
+    // with everything else, so without this they'd drop a vanilla creeper head.
+    public static final Block REEFER_HEAD = registerBlock("reefer_head", ReeferHeadBlock::new,
+            Block.Settings.copy(Blocks.CREEPER_HEAD).lootTable(lootTableOf("reefer_head")));
+    public static final Block REEFER_WALL_HEAD = registerBlock("reefer_wall_head", ReeferWallHeadBlock::new,
+            Block.Settings.copy(Blocks.CREEPER_WALL_HEAD).lootTable(lootTableOf("reefer_wall_head")));
+    public static final BlockItem REEFER_HEAD_ITEM = registerBlockItem("reefer_head",
+            settings -> new ReeferHeadItem(REEFER_HEAD, REEFER_WALL_HEAD, settings),
+            // Wearable on the head, same as every vanilla mob head.
+            new Item.Settings().component(DataComponentTypes.EQUIPPABLE,
+                    EquippableComponent.builder(EquipmentSlot.HEAD).swappable(false).build()));
 
     public static final Block POTTED_WILD_HEMP = registerBlock("potted_wild_hemp", settings -> new PottedWildHemp(WILD_HEMP, settings), Block.Settings.copy(Blocks.POTTED_FERN));
 
@@ -176,7 +187,6 @@ public class NirvanaBlocks {
             entries.add(NirvanaItems.WEED_BROWNIE);
             entries.add(NirvanaItems.JOINT);
             entries.add(NirvanaItems.BONG);
-            entries.add(NirvanaItems.TEST_POTION_BONG);
             addPotionBongStacks(entries);
             entries.add(NirvanaItems.REEFER_SPAWN_EGG);
             entries.add(NirvanaItems.THC_MINECART);
@@ -263,6 +273,10 @@ public class NirvanaBlocks {
                     stack.set(DataComponentTypes.POTION_CONTENTS, new PotionContentsComponent(Registries.POTION.getEntry(potion)));
                     entries.add(stack);
                 });
+    }
+
+    private static java.util.Optional<RegistryKey<net.minecraft.loot.LootTable>> lootTableOf(String name) {
+        return java.util.Optional.of(RegistryKey.of(RegistryKeys.LOOT_TABLE, id("blocks/" + name)));
     }
 
     public static Block registerBlock(String name, Function<AbstractBlock.Settings, Block> factory, AbstractBlock.Settings settings){

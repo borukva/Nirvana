@@ -13,6 +13,11 @@
       "nirvana:item/bong_3"
     ]
   },
+  "item.use.blow": {
+    "sounds": [
+      "nirvana:item/blow"
+    ]
+  },
   "music_disc.jam": {
     "sounds": [
       "nirvana:disc/jam"
