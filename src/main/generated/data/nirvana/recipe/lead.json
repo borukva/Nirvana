@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "H": "nirvana:hemp",
+    "S": "minecraft:string"
+  },
+  "pattern": [
+    "SH ",
+    "HS ",
+    "  S"
+  ],
+  "result": {
+    "count": 1,
+    "id": "minecraft:lead"
+  }
+}

@@ -8,6 +8,8 @@ import eu.pb4.polymer.core.api.item.SimplePolymerItem;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.ConsumableComponent;
 import net.minecraft.component.type.FoodComponent;
+import net.minecraft.component.type.JukeboxPlayableComponent;
+import net.minecraft.registry.entry.LazyRegistryEntryReference;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.item.Item;
@@ -72,6 +74,11 @@ public class NirvanaItems {
             ), new ItemStack(Items.GLASS_BOTTLE))
     );
 
+    public static final Item MUSIC_DISC_JAM = registerItem("music_disc_jam", SimplePolymerItem::new,
+            new Item.Settings().maxCount(1).rarity(Rarity.RARE)
+                    .component(DataComponentTypes.JUKEBOX_PLAYABLE, new JukeboxPlayableComponent(
+                            new LazyRegistryEntryReference<>(RegistryKey.of(RegistryKeys.JUKEBOX_SONG, Identifier.of(Nirvana.MOD_ID, "jam"))))));
+
     public static final Item REEFER_SPAWN_EGG = registerItem("reefer_spawn_egg", ReeferSpawnEgg::new, new Item.Settings());
     public static final Item THC_MINECART = registerItem("thc_minecart", ThcMinecartItem::new, new Item.Settings().maxCount(1));
 
@@ -113,5 +120,13 @@ public class NirvanaItems {
     }
 
     public static void registerModItems() {
+        // Archived per request - dispensers "smoking" a loaded joint/pipe onto whatever's in
+        // front of them. Only the joint applies its effect through a dispenser in the original
+        // mod; the pipes register the same behaviour purely for their smoke particles.
+        // Bong/potion_bong/old_pipe never registered one there, so they keep vanilla's plain
+        // "eject the item" dispense regardless. May come back later.
+        // SmokingItem.registerDispenserBehavior((SmokingItem) JOINT, true);
+        // SmokingItem.registerDispenserBehavior((SmokingItem) STUFFED_PIPE, false);
+        // SmokingItem.registerDispenserBehavior((SmokingItem) SUSPICIOUS_PIPE, false);
     }
 }

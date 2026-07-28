@@ -1,0 +1,8 @@
+{
+  "sound_event": "minecraft:intentionally_empty",
+  "description": {
+    "translate": "jukebox_song.nirvana.jam"
+  },
+  "length_in_seconds": 150.0,
+  "comparator_output": 13
+}

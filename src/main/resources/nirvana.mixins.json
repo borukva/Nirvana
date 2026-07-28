@@ -5,9 +5,12 @@
   "mixins": [
     "BrewingRecipeRegistryMixin",
     "BrewingStandBlockEntityMixin",
+    "CatEntityAccessor",
+    "CatEntityMixin",
     "CreeperEntityAccessor",
     "CreeperEntityMixin",
     "EntityMixin",
+    "JukeboxBlockEntityMixin",
     "LivingEntityMixin",
     "MobEntityMixin",
     "PotionSlotMixin",

@@ -21,6 +21,7 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.potion.Potions;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
@@ -190,6 +191,8 @@ public class NirvanaBlocks {
             addPotionBongStacks(entries);
             entries.add(NirvanaItems.REEFER_SPAWN_EGG);
             entries.add(NirvanaItems.THC_MINECART);
+            entries.add(NirvanaItems.MUSIC_DISC_JAM);
+            entries.add(paintingStack(displayContext));
             entries.add(NirvanaItems.PEACE_BANNER_PATTERN);
             addSuspiciousStacks(entries, NirvanaItems.HERBAL_SALVE, 3);
             // entries.add(NirvanaItems.PEACE_SALVE); // archived, see NirvanaItems
@@ -238,6 +241,22 @@ public class NirvanaBlocks {
         PolymerItemGroupUtils.registerPolymerItemGroup(id("blocks"), polymerGroup);
 
         Nirvana.LOGGER.info("Blocks register");
+    }
+
+    /**
+     * A normal {@code Items.PAINTING} pre-set to our variant via the same component vanilla's own
+     * {@code /give ... painting[minecraft:painting/variant=...]} uses, so it always places "This
+     * is not a horn" instead of a random placeable variant. The variant has to be looked up
+     * against the display context's own registry lookup rather than resolved once at mod init,
+     * since painting_variant is a datapack-loaded registry that doesn't exist yet that early.
+     */
+    private static ItemStack paintingStack(ItemGroup.DisplayContext displayContext) {
+        var variant = displayContext.lookup()
+                .getOrThrow(RegistryKeys.PAINTING_VARIANT)
+                .getOrThrow(RegistryKey.of(RegistryKeys.PAINTING_VARIANT, id("this_is_not_a_horn")));
+        var stack = new ItemStack(Items.PAINTING);
+        stack.set(DataComponentTypes.PAINTING_VARIANT, variant);
+        return stack;
     }
 
     /**

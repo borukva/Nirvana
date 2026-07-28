@@ -1,12 +1,14 @@
 package galena.nirvana.entity;
 
 import galena.nirvana.index.NirvanaBlocks;
+import galena.nirvana.index.NirvanaItems;
 import galena.nirvana.mixin.CreeperEntityAccessor;
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
 import eu.pb4.polymer.virtualentity.api.attachment.EntityAttachment;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.mob.CreeperEntity;
+import net.minecraft.registry.tag.EntityTypeTags;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -68,6 +70,13 @@ public class Reefer extends CreeperEntity implements PolymerEntity, ICustomCreep
                 accessor.setHeadsDropped(true);
                 dropItem(world, NirvanaBlocks.REEFER_HEAD_ITEM);
             }
+        }
+
+        // Same easter egg as a vanilla creeper dropping a music disc when a skeleton lands the
+        // killing blow.
+        var attacker = source.getAttacker();
+        if (attacker != null && attacker.getType().isIn(EntityTypeTags.SKELETONS)) {
+            dropItem(world, NirvanaItems.MUSIC_DISC_JAM);
         }
     }
 }

@@ -69,6 +69,7 @@ public class ModModelProvider extends FabricModelProvider{
         itemModelGenerator.register(NirvanaItems.WEED, Models.GENERATED);
         itemModelGenerator.register(NirvanaItems.WEED_BROWNIE, Models.GENERATED);
         itemModelGenerator.register(NirvanaItems.OLD_PIPE, Models.GENERATED);
+        itemModelGenerator.register(NirvanaItems.MUSIC_DISC_JAM, Models.GENERATED);
     }
     private static void generateCrate(BlockStateModelGenerator generator, Block generatedBlock, String path) {
         generator.registerCubeWithCustomTextures(

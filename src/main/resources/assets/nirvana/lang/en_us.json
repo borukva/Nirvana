@@ -103,6 +103,7 @@
   "item.nirvana.potion_bong.effect.infested": "Bong of Infestation",
 
 
+  "item.nirvana.music_disc_jam": "Music Disc",
   "item.nirvana.reefer_spawn_egg": "Reefer Spawn Egg",
   "item.nirvana.stuffed_pipe": "Stuffed Pipe",
   "item.nirvana.suspicious_pipe": "Suspicious Pipe",
@@ -110,6 +111,7 @@
   "item.nirvana.weed": "Weed Bud",
   "item.nirvana.weed_brownie": "Weed Brownie",
   "item.nirvana.wild_hemp": "Wild Hemp",
+  "jukebox_song.nirvana.jam": "Jam - firch",
   "nirvana.pattern.potion": "^Potion of (.+)$",
   "painting.nirvana.this_is_not_a_horn.author": "Yapettoshen",
   "painting.nirvana.this_is_not_a_horn.title": "This is not a horn",

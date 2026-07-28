@@ -5,6 +5,7 @@ import galena.nirvana.effects.NirvanaEffects;
 import galena.nirvana.effects.PeaceClimax;
 import eu.pb4.polymer.core.api.item.PolymerItem;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.minecraft.block.DispenserBlock;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
@@ -14,6 +15,7 @@ import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.component.type.TooltipDisplayComponent;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.stat.Stats;
 import net.minecraft.text.Text;
@@ -21,6 +23,11 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.TypeFilter;
+import net.minecraft.util.math.BlockPointer;
+import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import xyz.nucleoid.packettweaker.PacketContext;
 
@@ -223,14 +230,7 @@ public class SmokingItem extends BowItem implements PolymerItem {
 
                 // Creative mode never spends the item, same as vanilla consumables.
                 if (!player.getAbilities().creativeMode) {
-                    if (stack.isDamageable()) {
-                        stack.setDamage(stack.getDamage() + 1);
-                        if (stack.getDamage() >= stack.getMaxDamage()) {
-                            return this.remainder.copy();
-                        }
-                    } else {
-                        return this.remainder.copy();
-                    }
+                    return takeHit(stack);
                 }
             }
         }
@@ -245,6 +245,62 @@ public class SmokingItem extends BowItem implements PolymerItem {
     @Override
     public int getMaxUseTime(ItemStack stack, LivingEntity user) {
         return USE_DURATION;
+    }
+
+    /** Shared by the player-use path above and the dispenser behaviour below. */
+    private ItemStack takeHit(ItemStack stack) {
+        if (stack.isDamageable()) {
+            stack.setDamage(stack.getDamage() + 1);
+            if (stack.getDamage() >= stack.getMaxDamage()) {
+                return this.remainder.copy();
+            }
+            return stack;
+        }
+        return this.remainder.copy();
+    }
+
+    /** Radius the original mod defaults both its joint and bong secondhand-smoke config to. */
+    private static final double DISPENSER_EFFECT_RADIUS = 15.0;
+
+    /**
+     * Lets a dispenser "smoke" a joint or pipe loaded into it - no fake player is involved, so
+     * unlike a normal use there's no single entity to hand the effect to: instead it's applied
+     * (when {@code appliesEffect} is set) to every living entity within a radius of the dispenser
+     * itself, exactly like the original mod's own dispenser behaviour. The item is still consumed
+     * the same way a normal use would consume it. Only {@link NirvanaItems#JOINT} actually applies
+     * an effect this way in the original - the pipes register this too, but purely for the smoke
+     * particles, matching their own {@code appliesEffect = false}.
+     */
+    static void registerDispenserBehavior(SmokingItem item, boolean appliesEffect) {
+        DispenserBlock.registerBehavior(item, (BlockPointer pointer, ItemStack stack) -> {
+            ServerWorld world = pointer.world();
+            Vec3d center = pointer.centerPos();
+            Direction facing = pointer.state().get(DispenserBlock.FACING);
+            Vec3d look = Vec3d.of(facing.getVector());
+            Vec3d mouth = center.add(look.multiply(0.5));
+
+            if (appliesEffect) {
+                double range = DISPENSER_EFFECT_RADIUS * 2;
+                var targets = world.getEntitiesByType(TypeFilter.instanceOf(LivingEntity.class),
+                        Box.of(center, range, range, range), target -> true);
+                for (LivingEntity target : targets) {
+                    for (StatusEffectInstance effect : item.getEffects(stack)) {
+                        applyEffect(target, effect);
+                    }
+                }
+            }
+
+            if (item.smokeRing) {
+                SmokeRing.spawn(world, mouth, look);
+            } else {
+                world.spawnParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE,
+                        mouth.x, mouth.y, mouth.z, 5, 0.0, 0.2 + world.getRandom().nextDouble() * 0.1, 0.0, 0.02);
+            }
+
+            world.playSound(null, center.x, center.y, center.z, item.sound, SoundCategory.BLOCKS, 0.5F, 1.0F);
+
+            return item.takeHit(stack);
+        });
     }
 
     private static final int MAX_PEACE_AMPLIFIER = 7;

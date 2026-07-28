@@ -11,6 +11,7 @@ import galena.nirvana.index.crop.HempCrop;
 import galena.nirvana.index.NirvanaBlocks;
 import galena.nirvana.index.NirvanaItems;
 import galena.nirvana.world.gen.ModFlowerGeneration;
+import galena.nirvana.world.gen.ModLootInjections;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import eu.pb4.polymer.resourcepack.extras.api.ResourcePackExtras;
 import net.fabricmc.api.ModInitializer;
@@ -31,6 +32,7 @@ public class Nirvana implements ModInitializer {
         NirvanaEntities.register();
         FlowerModels.register();
         ModFlowerGeneration.generateFlowers();
+        ModLootInjections.register();
         NirvanaEffects.register();
         ModTags.register();
         NirvanaRecipeTypes.register();
