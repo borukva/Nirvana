@@ -160,6 +160,22 @@ public class NirvanaRecipeGenerator extends RecipeGenerator {
                 .input(Items.PAPER)
                 .criterion(hasItem(NirvanaItems.WEED), conditionsFromItem(NirvanaItems.WEED))
                 .offerTo(exporter);
+
+        createShapeless(RecipeCategory.MISC, NirvanaItems.PEACE_BANNER_PATTERN, 1)
+                .input(Items.PAPER)
+                .input(NirvanaItems.HEMP)
+                .criterion(hasItem(NirvanaItems.HEMP), conditionsFromItem(NirvanaItems.HEMP))
+                .offerTo(exporter);
+
+        // Alternate recipe for the vanilla lead, alongside its usual slimeball one.
+        createShaped(RecipeCategory.TOOLS, Items.LEAD, 1)
+                .pattern("SH ")
+                .pattern("HS ")
+                .pattern("  S")
+                .input('S', Items.STRING)
+                .input('H', NirvanaItems.HEMP)
+                .criterion(hasItem(NirvanaItems.HEMP), conditionsFromItem(NirvanaItems.HEMP))
+                .offerTo(exporter);
     }
 
     private void compressBlockRecipe(Item blockItem, Item item, RecipeExporter exporter){

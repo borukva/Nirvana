@@ -37,6 +37,9 @@ public class ModLootTableProvider extends FabricBlockLootTableProvider {
         addCropDrop(HEMP, NirvanaItems.HEMP, NirvanaItems.HEMP_SEEDS);
         addWildHempDrop();
         addDrop(BLISS_BLOOM, blissBloomDrop());
+        // Both head variants drop the one head item, standing or wall-mounted alike.
+        addDrop(REEFER_HEAD, REEFER_HEAD_ITEM);
+        addDrop(REEFER_WALL_HEAD, REEFER_HEAD_ITEM);
         addDrop(HEMP_CRATE);
         addDrop(WEED_CRATE);
         addDrop(THC);

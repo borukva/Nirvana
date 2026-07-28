@@ -12,6 +12,8 @@ import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.SuspiciousStewIngredient;
 import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.EquippableComponent;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.component.type.PotionContentsComponent;
 import net.minecraft.component.type.SuspiciousStewEffectsComponent;
 import net.minecraft.entity.effect.StatusEffects;
@@ -19,6 +21,7 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.potion.Potions;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
@@ -46,8 +49,17 @@ public class NirvanaBlocks {
     public static final Block BLISS_BLOOM = registerBlock("bliss_bloom", BlissBloom::new, Block.Settings.copy(Blocks.ROSE_BUSH));
     public static final BlockItem BLISS_BLOOM_ITEM = registerBlockItem("bliss_bloom", settings -> new BlissBloomItem(BLISS_BLOOM, settings), new Item.Settings());
 
-    public static final Block REEFER_HEAD = registerBlock("reefer_head", ReeferHeadBlock::new, Block.Settings.copy(Blocks.CREEPER_HEAD));
-    public static final BlockItem REEFER_HEAD_ITEM = registerBlockItem("reefer_head", settings -> new NirvanaTexturedBlockItem(REEFER_HEAD, settings), new Item.Settings());
+    // Both explicitly get their own loot table: Settings.copy() carries the creeper head's along
+    // with everything else, so without this they'd drop a vanilla creeper head.
+    public static final Block REEFER_HEAD = registerBlock("reefer_head", ReeferHeadBlock::new,
+            Block.Settings.copy(Blocks.CREEPER_HEAD).lootTable(lootTableOf("reefer_head")));
+    public static final Block REEFER_WALL_HEAD = registerBlock("reefer_wall_head", ReeferWallHeadBlock::new,
+            Block.Settings.copy(Blocks.CREEPER_WALL_HEAD).lootTable(lootTableOf("reefer_wall_head")));
+    public static final BlockItem REEFER_HEAD_ITEM = registerBlockItem("reefer_head",
+            settings -> new ReeferHeadItem(REEFER_HEAD, REEFER_WALL_HEAD, settings),
+            // Wearable on the head, same as every vanilla mob head.
+            new Item.Settings().component(DataComponentTypes.EQUIPPABLE,
+                    EquippableComponent.builder(EquipmentSlot.HEAD).swappable(false).build()));
 
     public static final Block POTTED_WILD_HEMP = registerBlock("potted_wild_hemp", settings -> new PottedWildHemp(WILD_HEMP, settings), Block.Settings.copy(Blocks.POTTED_FERN));
 
@@ -176,10 +188,11 @@ public class NirvanaBlocks {
             entries.add(NirvanaItems.WEED_BROWNIE);
             entries.add(NirvanaItems.JOINT);
             entries.add(NirvanaItems.BONG);
-            entries.add(NirvanaItems.TEST_POTION_BONG);
             addPotionBongStacks(entries);
             entries.add(NirvanaItems.REEFER_SPAWN_EGG);
             entries.add(NirvanaItems.THC_MINECART);
+            entries.add(NirvanaItems.MUSIC_DISC_JAM);
+            entries.add(paintingStack(displayContext));
             entries.add(NirvanaItems.PEACE_BANNER_PATTERN);
             addSuspiciousStacks(entries, NirvanaItems.HERBAL_SALVE, 3);
             // entries.add(NirvanaItems.PEACE_SALVE); // archived, see NirvanaItems
@@ -231,6 +244,22 @@ public class NirvanaBlocks {
     }
 
     /**
+     * A normal {@code Items.PAINTING} pre-set to our variant via the same component vanilla's own
+     * {@code /give ... painting[minecraft:painting/variant=...]} uses, so it always places "This
+     * is not a horn" instead of a random placeable variant. The variant has to be looked up
+     * against the display context's own registry lookup rather than resolved once at mod init,
+     * since painting_variant is a datapack-loaded registry that doesn't exist yet that early.
+     */
+    private static ItemStack paintingStack(ItemGroup.DisplayContext displayContext) {
+        var variant = displayContext.lookup()
+                .getOrThrow(RegistryKeys.PAINTING_VARIANT)
+                .getOrThrow(RegistryKey.of(RegistryKeys.PAINTING_VARIANT, id("this_is_not_a_horn")));
+        var stack = new ItemStack(Items.PAINTING);
+        stack.set(DataComponentTypes.PAINTING_VARIANT, variant);
+        return stack;
+    }
+
+    /**
      * One creative-tab stack per distinct effect combination a dynamic suspicious-crafted item
      * (see {@link galena.nirvana.data.SuspiciousCraftingRecipe}) could be crafted into, matching
      * how the original mod previewed its own dynamic suspicious-effect items in creative.
@@ -263,6 +292,10 @@ public class NirvanaBlocks {
                     stack.set(DataComponentTypes.POTION_CONTENTS, new PotionContentsComponent(Registries.POTION.getEntry(potion)));
                     entries.add(stack);
                 });
+    }
+
+    private static java.util.Optional<RegistryKey<net.minecraft.loot.LootTable>> lootTableOf(String name) {
+        return java.util.Optional.of(RegistryKey.of(RegistryKeys.LOOT_TABLE, id("blocks/" + name)));
     }
 
     public static Block registerBlock(String name, Function<AbstractBlock.Settings, Block> factory, AbstractBlock.Settings settings){

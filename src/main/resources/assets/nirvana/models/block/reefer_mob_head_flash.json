@@ -1,0 +1,184 @@
+{
+  "ambientocclusion": false,
+  "texture_size": [
+    64,
+    64
+  ],
+  "textures": {
+    "particle": "nirvana:block/reefer_flash",
+    "skin": "nirvana:block/reefer_flash"
+  },
+  "display": {
+    "fixed": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ]
+    },
+    "ground": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ]
+    }
+  },
+  "elements": [
+    {
+      "__comment": "head cube sitting on the neck - the neck is at model (8,8,8), the point that lands on this element's own origin, so yaw/pitch rotate about the neck",
+      "from": [
+        4,
+        8,
+        4
+      ],
+      "to": [
+        12,
+        16,
+        12
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            0,
+            2,
+            2,
+            4
+          ],
+          "texture": "#skin"
+        },
+        "west": {
+          "uv": [
+            4,
+            2,
+            6,
+            4
+          ],
+          "texture": "#skin"
+        },
+        "up": {
+          "uv": [
+            2,
+            0,
+            4,
+            2
+          ],
+          "texture": "#skin"
+        },
+        "down": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#skin"
+        },
+        "north": {
+          "uv": [
+            2,
+            2,
+            4,
+            4
+          ],
+          "texture": "#skin"
+        },
+        "south": {
+          "uv": [
+            6,
+            2,
+            8,
+            4
+          ],
+          "texture": "#skin"
+        }
+      }
+    },
+    {
+      "__comment": "leafy crown, large flat plane - texture only has real art on one half, so use that same half for both sides",
+      "from": [
+        -2,
+        1,
+        3.5
+      ],
+      "to": [
+        18,
+        24,
+        3.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            8,
+            5,
+            13.75
+          ],
+          "texture": "#skin"
+        },
+        "south": {
+          "uv": [
+            0,
+            8,
+            5,
+            13.75
+          ],
+          "texture": "#skin"
+        }
+      }
+    },
+    {
+      "__comment": "leafy crown, thin brim plane just above the head's brow - same one-sided art",
+      "from": [
+        -2,
+        11,
+        4
+      ],
+      "to": [
+        18,
+        13,
+        4
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            11,
+            15.5,
+            16,
+            16
+          ],
+          "texture": "#skin"
+        },
+        "south": {
+          "uv": [
+            11,
+            15.5,
+            16,
+            16
+          ],
+          "texture": "#skin"
+        }
+      }
+    }
+  ]
+}

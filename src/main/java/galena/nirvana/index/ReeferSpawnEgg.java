@@ -1,5 +1,6 @@
 package galena.nirvana.index;
 
+import galena.nirvana.Nirvana;
 import galena.nirvana.entity.NirvanaEntities;
 import eu.pb4.polymer.core.api.item.PolymerItem;
 import net.minecraft.component.DataComponentTypes;
@@ -9,12 +10,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.SpawnEggItem;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.util.Identifier;
 import xyz.nucleoid.packettweaker.PacketContext;
 
 /**
  * Real vanilla spawn-egg mechanics (right click to spawn a {@link galena.nirvana.entity.Reefer}),
- * disguised as a plain creeper spawn egg — no custom baked texture, since a vanilla client only
- * ever sees the disguise target's own icon regardless of what we set here.
+ * disguised as a creeper spawn egg but carrying its own icon.
  */
 public class ReeferSpawnEgg extends SpawnEggItem implements PolymerItem {
     public ReeferSpawnEgg(Settings settings) {
@@ -24,5 +25,10 @@ public class ReeferSpawnEgg extends SpawnEggItem implements PolymerItem {
     @Override
     public Item getPolymerItem(ItemStack itemStack, PacketContext context) {
         return Items.CREEPER_SPAWN_EGG;
+    }
+
+    @Override
+    public Identifier getPolymerItemModel(ItemStack itemStack, PacketContext context) {
+        return Identifier.of(Nirvana.MOD_ID, "reefer_spawn_egg");
     }
 }

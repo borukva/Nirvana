@@ -1,0 +1,13 @@
+{
+  "asset_id": "nirvana:this_is_not_a_horn",
+  "width": 3,
+  "height": 2,
+  "title": {
+    "color": "yellow",
+    "translate": "painting.nirvana.this_is_not_a_horn.title"
+  },
+  "author": {
+    "color": "gray",
+    "translate": "painting.nirvana.this_is_not_a_horn.author"
+  }
+}

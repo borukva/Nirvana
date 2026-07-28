@@ -6,12 +6,16 @@ import galena.nirvana.utils.ModFoodComponents;
 import eu.pb4.polymer.core.api.item.PolymerBlockItem;
 import eu.pb4.polymer.core.api.item.SimplePolymerItem;
 import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.ConsumableComponent;
 import net.minecraft.component.type.FoodComponent;
+import net.minecraft.component.type.JukeboxPlayableComponent;
+import net.minecraft.registry.entry.LazyRegistryEntryReference;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.item.consume.UseAction;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
@@ -22,6 +26,26 @@ import net.minecraft.util.Rarity;
 import java.util.List;
 import java.util.function.Function;
 public class NirvanaItems {
+    /**
+     * bong/potion_bong are disguised as Items.POTION (so they can be dragged into a brewing
+     * stand's slot by hand) but a real vanilla PotionItem doesn't override getUseAction()/
+     * getMaxUseTime() in Java - it falls back to reading this component straight off the stack,
+     * which IS preserved across the Polymer disguise. Setting it here is what actually restores
+     * the bow-draw "smoking" animation client-side, not the Java getUseAction() override (which
+     * only matters server-side, since the client only ever runs the disguise item's own class).
+     * <p>
+     * {@code ItemStack.usageTick()} spawns this component's particles/sound periodically purely
+     * because the component is present, regardless of its useAction value - unrelated to (and
+     * would otherwise sound/look like eating alongside) our own playSound/particle logic in
+     * {@link BongItem}/{@link PotionBongItem}, hence silenced below.
+     */
+    private static final ConsumableComponent BOW_USE_ANIMATION = ConsumableComponent.builder()
+            .consumeSeconds(2.0F)
+            .useAction(UseAction.BOW)
+            .sound(Registries.SOUND_EVENT.getEntry(net.minecraft.sound.SoundEvents.INTENTIONALLY_EMPTY))
+            .consumeParticles(false)
+            .build();
+
     public static final Item HEMP = registerItem("hemp", SimplePolymerItem::new, new Item.Settings());
     public static final Item WEED = registerItem("weed", SimplePolymerItem::new, new Item.Settings());
     public static Item HEMP_SEEDS = registerItem("hemp_seeds",  settings -> new PolymerBlockItem(NirvanaBlocks.HEMP, settings));
@@ -30,7 +54,7 @@ public class NirvanaItems {
     public static final Item HEMP_CLOTH = registerItem("hemp_cloth", SimplePolymerItem::new, new Item.Settings());
 
     public static final Item POTION_BONG = registerItem("potion_bong",
-            settings -> new PotionBongItem(settings.maxDamage(4)));
+            settings -> new PotionBongItem(settings.maxDamage(4).component(DataComponentTypes.CONSUMABLE, BOW_USE_ANIMATION)));
 
     public static final Item PEACE_BANNER_PATTERN = registerItem("peace_banner_pattern", SimplePolymerItem::new,
             new Item.Settings().maxCount(1).rarity(Rarity.UNCOMMON)
@@ -45,12 +69,15 @@ public class NirvanaItems {
 
     public static final Item BONG = registerItem(
             "bong",
-            settings -> new SmokingItem(settings.maxDamage(4), List.of(
+            settings -> new BongItem(settings.maxDamage(4).component(DataComponentTypes.CONSUMABLE, BOW_USE_ANIMATION), List.of(
                     new StatusEffectInstance(NirvanaEffects.PEACE, 600, 0)
-            ), "bong", new ItemStack(Items.GLASS_BOTTLE), NirvanaSounds.BONG)
+            ), new ItemStack(Items.GLASS_BOTTLE))
     );
 
-    public static final Item TEST_POTION_BONG = registerItem("test_potion_bong", TestPotionBongItem::new, new Item.Settings());
+    public static final Item MUSIC_DISC_JAM = registerItem("music_disc_jam", SimplePolymerItem::new,
+            new Item.Settings().maxCount(1).rarity(Rarity.RARE)
+                    .component(DataComponentTypes.JUKEBOX_PLAYABLE, new JukeboxPlayableComponent(
+                            new LazyRegistryEntryReference<>(RegistryKey.of(RegistryKeys.JUKEBOX_SONG, Identifier.of(Nirvana.MOD_ID, "jam"))))));
 
     public static final Item REEFER_SPAWN_EGG = registerItem("reefer_spawn_egg", ReeferSpawnEgg::new, new Item.Settings());
     public static final Item THC_MINECART = registerItem("thc_minecart", ThcMinecartItem::new, new Item.Settings().maxCount(1));
@@ -61,7 +88,7 @@ public class NirvanaItems {
             "stuffed_pipe",
             settings -> new SmokingItem(settings.maxDamage(6).rarity(Rarity.UNCOMMON), List.of(
                     new StatusEffectInstance(NirvanaEffects.PEACE, 600, 0)
-            ), "stuffed_pipe", new ItemStack(NirvanaItems.OLD_PIPE), NirvanaSounds.SMOKING)
+            ), "stuffed_pipe", new ItemStack(NirvanaItems.OLD_PIPE), NirvanaSounds.SMOKING, true)
     );
 
     public static final Item SUSPICIOUS_PIPE = registerItem(
@@ -93,5 +120,13 @@ public class NirvanaItems {
     }
 
     public static void registerModItems() {
+        // Archived per request - dispensers "smoking" a loaded joint/pipe onto whatever's in
+        // front of them. Only the joint applies its effect through a dispenser in the original
+        // mod; the pipes register the same behaviour purely for their smoke particles.
+        // Bong/potion_bong/old_pipe never registered one there, so they keep vanilla's plain
+        // "eject the item" dispense regardless. May come back later.
+        // SmokingItem.registerDispenserBehavior((SmokingItem) JOINT, true);
+        // SmokingItem.registerDispenserBehavior((SmokingItem) STUFFED_PIPE, false);
+        // SmokingItem.registerDispenserBehavior((SmokingItem) SUSPICIOUS_PIPE, false);
     }
 }

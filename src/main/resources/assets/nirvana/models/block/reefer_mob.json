@@ -1,95 +1,34 @@
 {
   "ambientocclusion": false,
+  "texture_size": [64, 64],
   "textures": {
-    "particle": "nirvana:entity/reefer",
-    "skin": "nirvana:entity/reefer"
+    "particle": "nirvana:block/reefer",
+    "skin": "nirvana:block/reefer"
+  },
+  "display": {
+    "fixed": {
+      "rotation": [0, 0, 0],
+      "translation": [0, 0, 0],
+      "scale": [1, 1, 1]
+    },
+    "ground": {
+      "rotation": [0, 0, 0],
+      "translation": [0, 0, 0],
+      "scale": [1, 1, 1]
+    }
   },
   "elements": [
     {
-      "__comment": "head",
-      "from": [-4, 18, -4],
-      "to": [4, 26, 4],
-      "faces": {
-        "east":  {"uv": [0, 2, 2, 4], "texture": "#skin"},
-        "west":  {"uv": [4, 2, 6, 4], "texture": "#skin"},
-        "down":  {"uv": [2, 0, 4, 2], "texture": "#skin"},
-        "up":    {"uv": [4, 0, 6, 2], "texture": "#skin"},
-        "north": {"uv": [2, 2, 4, 4], "texture": "#skin"},
-        "south": {"uv": [6, 2, 8, 4], "texture": "#skin"}
-      }
-    },
-    {
-      "__comment": "body",
-      "from": [-4, 6, -2],
-      "to": [4, 18, 2],
+      "__comment": "body - entity-space coords (feet at y=0, centered on x/z=0) shifted +8 on every axis, since model point (8,8,8) is what lands on the display element's own origin",
+      "from": [4, 14, 6],
+      "to": [12, 26, 10],
       "faces": {
         "east":  {"uv": [4, 5, 5, 8], "texture": "#skin"},
         "west":  {"uv": [7, 5, 8, 8], "texture": "#skin"},
-        "down":  {"uv": [5, 4, 7, 5], "texture": "#skin"},
-        "up":    {"uv": [7, 4, 9, 5], "texture": "#skin"},
+        "up":    {"uv": [5, 4, 7, 5], "texture": "#skin"},
+        "down":  {"uv": [7, 4, 9, 5], "texture": "#skin"},
         "north": {"uv": [5, 5, 7, 8], "texture": "#skin"},
         "south": {"uv": [8, 5, 10, 8], "texture": "#skin"}
-      }
-    },
-    {
-      "__comment": "left front leg",
-      "from": [0, 0, -6],
-      "to": [4, 6, -2],
-      "faces": {
-        "east":  {"uv": [0, 5, 1, 6.5], "texture": "#skin"},
-        "west":  {"uv": [2, 5, 3, 6.5], "texture": "#skin"},
-        "down":  {"uv": [1, 4, 2, 5], "texture": "#skin"},
-        "up":    {"uv": [2, 4, 3, 5], "texture": "#skin"},
-        "north": {"uv": [1, 5, 2, 6.5], "texture": "#skin"},
-        "south": {"uv": [3, 5, 4, 6.5], "texture": "#skin"}
-      }
-    },
-    {
-      "__comment": "right front leg",
-      "from": [-4, 0, -6],
-      "to": [0, 6, -2],
-      "faces": {
-        "east":  {"uv": [0, 5, 1, 6.5], "texture": "#skin"},
-        "west":  {"uv": [2, 5, 3, 6.5], "texture": "#skin"},
-        "down":  {"uv": [1, 4, 2, 5], "texture": "#skin"},
-        "up":    {"uv": [2, 4, 3, 5], "texture": "#skin"},
-        "north": {"uv": [1, 5, 2, 6.5], "texture": "#skin"},
-        "south": {"uv": [3, 5, 4, 6.5], "texture": "#skin"}
-      }
-    },
-    {
-      "__comment": "left hind leg",
-      "from": [0, 0, 2],
-      "to": [4, 6, 6],
-      "faces": {
-        "east":  {"uv": [0, 5, 1, 6.5], "texture": "#skin"},
-        "west":  {"uv": [2, 5, 3, 6.5], "texture": "#skin"},
-        "down":  {"uv": [1, 4, 2, 5], "texture": "#skin"},
-        "up":    {"uv": [2, 4, 3, 5], "texture": "#skin"},
-        "north": {"uv": [1, 5, 2, 6.5], "texture": "#skin"},
-        "south": {"uv": [3, 5, 4, 6.5], "texture": "#skin"}
-      }
-    },
-    {
-      "__comment": "right hind leg",
-      "from": [-4, 0, 2],
-      "to": [0, 6, 6],
-      "faces": {
-        "east":  {"uv": [0, 5, 1, 6.5], "texture": "#skin"},
-        "west":  {"uv": [2, 5, 3, 6.5], "texture": "#skin"},
-        "down":  {"uv": [1, 4, 2, 5], "texture": "#skin"},
-        "up":    {"uv": [2, 4, 3, 5], "texture": "#skin"},
-        "north": {"uv": [1, 5, 2, 6.5], "texture": "#skin"},
-        "south": {"uv": [3, 5, 4, 6.5], "texture": "#skin"}
-      }
-    },
-    {
-      "__comment": "leaf-face decal on the front of the head",
-      "from": [-5, 11, -4.6],
-      "to": [5, 20.5, -4.5],
-      "faces": {
-        "north": {"uv": [0, 8, 5, 13.75], "texture": "#skin"},
-        "south": {"uv": [0, 8, 5, 13.75], "texture": "#skin"}
       }
     }
   ]

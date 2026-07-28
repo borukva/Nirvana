@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class SuspiciousPipeItem extends SmokingItem {
     public SuspiciousPipeItem(Settings settings) {
-        super(settings, List.of(), "suspicious_pipe", new ItemStack(NirvanaItems.OLD_PIPE), NirvanaSounds.SMOKING);
+        super(settings, List.of(), "suspicious_pipe", new ItemStack(NirvanaItems.OLD_PIPE), NirvanaSounds.SMOKING, true);
     }
 
     @Override
