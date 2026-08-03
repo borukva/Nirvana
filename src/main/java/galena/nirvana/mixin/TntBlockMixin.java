@@ -8,13 +8,17 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.TntBlock;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.world.World;
+import net.minecraft.world.explosion.Explosion;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(TntBlock.class)
 public abstract class TntBlockMixin {
@@ -71,5 +75,20 @@ public abstract class TntBlockMixin {
     private boolean onProjectileHit(World world, BlockPos pos, LivingEntity igniter, Operation<Boolean> original, @Local(ordinal = 0, argsOnly = true) BlockState state, @Local(argsOnly = true) BlockHitResult hit) {
         if (!shouldPrime(state, world, pos, hit.getSide(), igniter)) return false;
         return original.call(world, pos, igniter);
+    }
+
+    /**
+     * Unlike the other pathways above, vanilla's own {@code onDestroyedByExplosion} never calls
+     * {@code primeTnt} internally - it builds a real vanilla TntEntity by hand - so there's no
+     * shared call site to wrap here; the whole method is replaced outright for custom TNT blocks.
+     * Without this, a nearby creeper or real TNT destroying THC would still spawn genuine vanilla
+     * TNT regardless of what THC otherwise disguises as.
+     */
+    @Inject(method = "onDestroyedByExplosion", at = @At("HEAD"), cancellable = true)
+    private void onDestroyedByExplosion(ServerWorld world, BlockPos pos, Explosion explosion, CallbackInfo ci) {
+        if (this instanceof ICustomTntBlock tnt) {
+            tnt.onDestroyedByExplosion(world, pos, explosion);
+            ci.cancel();
+        }
     }
 }

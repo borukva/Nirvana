@@ -17,26 +17,24 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.Locale;
 
 /**
- * "Sprigatito" easter egg: naming a cat exactly that (any case) reskins it. The original mod did
- * this by overriding the client's own texture-selection method, which only worked because that
- * method still hardcoded a texture per variant back then; cat variants are a real data-driven
- * registry now; so here the reskin is a genuine {@link CatVariant} swap - the same kind of change
- * a nametag or a potion effect makes - rather than a render-time trick, and needs no client mod.
+ * "Sprigatito"/"Skeker" easter egg: naming a cat exactly either (any case) reskins it, the same
+ * way a real name-based reskin (like vanilla's "jeb_" sheep) would if a server-only mod could
+ * touch client rendering directly - which it can't, so this swaps the cat's real, synced
+ * {@link CatVariant} instead.
  */
 @Mixin(CatEntity.class)
 public abstract class CatEntityMixin {
-    private static final RegistryKey<CatVariant> SPRIGATITO =
-            RegistryKey.of(RegistryKeys.CAT_VARIANT, Identifier.of(Nirvana.MOD_ID, "sprigatito"));
+    private static final RegistryKey<CatVariant> SPRIGATITO = RegistryKey.of(RegistryKeys.CAT_VARIANT, Identifier.of(Nirvana.MOD_ID, "sprigatito"));
 
     @Unique
     private String nirvana$lastCheckedName = "";
-    /** Remembered only in memory - restored on rename-away, but lost across a server restart. */
     @Unique
     private RegistryEntry<CatVariant> nirvana$variantBeforeSprigatito;
 
     @Inject(method = "tick", at = @At("HEAD"))
-    private void nirvana$checkSprigatitoName(CallbackInfo ci) {
+    private void nirvana$checkSprigatito(CallbackInfo ci) {
         CatEntity self = (CatEntity) (Object) this;
+
         Text customName = self.getCustomName();
         String name = customName == null ? "" : customName.getString().trim().toLowerCase(Locale.ROOT);
         if (name.equals(this.nirvana$lastCheckedName)) {
@@ -45,18 +43,21 @@ public abstract class CatEntityMixin {
         this.nirvana$lastCheckedName = name;
 
         boolean isSprigatito = self.getVariant().matchesKey(SPRIGATITO);
-        if (name.equals("sprigatito")) {
+        if (name.equals("sprigatito") || name.equals("skeker")) {
             if (!isSprigatito) {
-                self.getEntityWorld().getRegistryManager().getOrThrow(RegistryKeys.CAT_VARIANT)
-                        .getEntry(SPRIGATITO.getValue())
-                        .ifPresent(variant -> {
-                            this.nirvana$variantBeforeSprigatito = self.getVariant();
-                            ((CatEntityAccessor) self).nirvana$setVariant(variant);
-                        });
+                this.nirvana$variantBeforeSprigatito = self.getVariant();
+                nirvana$applySprigatito(self);
             }
         } else if (isSprigatito && this.nirvana$variantBeforeSprigatito != null) {
             ((CatEntityAccessor) self).nirvana$setVariant(this.nirvana$variantBeforeSprigatito);
             this.nirvana$variantBeforeSprigatito = null;
         }
+    }
+
+    @Unique
+    private static void nirvana$applySprigatito(CatEntity self) {
+        self.getEntityWorld().getRegistryManager().getOrThrow(RegistryKeys.CAT_VARIANT)
+                .getEntry(SPRIGATITO.getValue())
+                .ifPresent(variant -> ((CatEntityAccessor) self).nirvana$setVariant(variant));
     }
 }

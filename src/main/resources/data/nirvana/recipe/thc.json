@@ -2,10 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "redstone",
   "key": {
-    "#": [
-      "minecraft:sand",
-      "minecraft:red_sand"
-    ],
+    "#": "minecraft:gunpowder",
     "X": "nirvana:weed"
   },
   "pattern": [

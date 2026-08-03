@@ -307,10 +307,13 @@ public class SmokingItem extends BowItem implements PolymerItem {
 
     /**
      * Peace stacks (amplifier climbs with repeated hits, triggering {@link PeaceClimax} at
-     * thresholds) instead of just refreshing duration like a normal effect re-application.
-     * Package-visible: also used directly by {@link BongItem}, which doesn't extend this class.
+     * thresholds) instead of just refreshing duration like a normal effect re-application. Used
+     * directly by {@link BongItem}, which doesn't extend this class, and by
+     * {@link galena.nirvana.entity.ThcCloud} so a THC/Reefer blast stacks the exact same way a
+     * fresh puff would instead of just re-flattening whoever's already mid-effect back to the
+     * blast's own base amplifier.
      */
-    static void applyEffect(LivingEntity target, StatusEffectInstance template) {
+    public static void applyEffect(LivingEntity target, StatusEffectInstance template) {
         if (template.getEffectType() == NirvanaEffects.PEACE) {
             var existing = target.getStatusEffect(NirvanaEffects.PEACE);
             int amplifier = Math.min(

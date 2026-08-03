@@ -11,6 +11,8 @@ import net.minecraft.util.TypeFilter;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 
+import java.util.Comparator;
+
 /**
  * The "high enough" payoff for repeatedly smoking Peace-effect items: once the effect's
  * amplifier crosses a threshold, any nearby real creepers get swapped out for reefers outright.
@@ -23,6 +25,8 @@ public class PeaceClimax {
 
     private static final double REEFER_CONVERSION_RANGE = 20;
     private static final double REEFER_CONVERSION_RANGE_SQR = REEFER_CONVERSION_RANGE * REEFER_CONVERSION_RANGE;
+    /** Only the nearest handful convert per hit, so a hit near a big farm doesn't wipe it out at once. */
+    private static final int MAX_CONVERTED_PER_HIT = 3;
 
     public static void onIncreasedTo(LivingEntity target, int amplifier) {
         if (!(target.getEntityWorld() instanceof ServerWorld world)) return;
@@ -42,7 +46,9 @@ public class PeaceClimax {
         var targets = world.getEntitiesByType(TypeFilter.instanceOf(CreeperEntity.class), box,
                 creeper -> !(creeper instanceof Reefer) && creeper.squaredDistanceTo(around) <= REEFER_CONVERSION_RANGE_SQR);
 
-        for (CreeperEntity creeper : targets) {
+        targets.sort(Comparator.comparingDouble(creeper -> creeper.squaredDistanceTo(around)));
+
+        for (CreeperEntity creeper : targets.subList(0, Math.min(targets.size(), MAX_CONVERTED_PER_HIT))) {
             var replacement = new Reefer(NirvanaEntities.REEFER, world);
             replacement.refreshPositionAndAngles(creeper.getX(), creeper.getY(), creeper.getZ(), creeper.getYaw(), creeper.getPitch());
             creeper.discard();

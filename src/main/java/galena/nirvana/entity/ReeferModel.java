@@ -63,6 +63,9 @@ public class ReeferModel extends ElementHolder {
     private float walkPhase;
     /** Last texture state pushed to the parts, so the item stacks are only swapped on a change. */
     private String appearance = "";
+    /** Swelling as of the previous tick, to tell "actively growing" from "holding steady/winding
+     * down" ourselves instead of trusting the source entity's own raw fuse-speed field. */
+    private float lastSwelling = 0F;
 
     public ReeferModel(Reefer source) {
         this.source = source;
@@ -104,14 +107,16 @@ public class ReeferModel extends ElementHolder {
      * friends-and-foes-patch uses for hurt states) since a display entity has no hurt overlay of
      * its own.
      */
-    private void updateAppearance(float swelling) {
+    private void updateAppearance(float swelling, boolean rising) {
         String state = "";
         if (this.source.hurtTime > 0) {
             state = "_hurt";
-        } else if (this.source.getFuseSpeed() > 0 && (int) (swelling * 10F) % 2 == 1) {
-            // Gated on the fuse actually burning, not merely on a non-zero swell: the swell winds
-            // back down again when a creeper thinks better of it, and flashing during that wind-down
-            // read as a stray "about to explode" blink after every hit.
+        } else if (rising && (int) (swelling * 10F) % 2 == 1) {
+            // Gated on the fuse actually growing tick-over-tick, not merely on a non-zero swell:
+            // the swell winds back down again when a creeper thinks better of it, and flashing
+            // during that wind-down read as a stray "about to explode" blink after every hit.
+            // Computed here from the swell value itself rather than trusting the source entity's
+            // own raw fuse-speed field, which didn't reliably reflect flint-and-steel ignition.
             state = "_flash";
         }
 
@@ -188,7 +193,9 @@ public class ReeferModel extends ElementHolder {
         updateWalkCycle();
 
         float swelling = this.source.getLerpedFuseTime(0F);
-        updateAppearance(swelling);
+        boolean rising = swelling > this.lastSwelling;
+        this.lastSwelling = swelling;
+        updateAppearance(swelling, rising);
         applySwellScale(swelling);
 
         var bodyRotation = new Quaternionf().rotateY(-this.source.getBodyYaw() * MathHelper.RADIANS_PER_DEGREE);

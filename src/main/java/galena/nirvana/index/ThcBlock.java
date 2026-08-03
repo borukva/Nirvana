@@ -18,7 +18,9 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
+import net.minecraft.world.explosion.Explosion;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
 
@@ -61,5 +63,24 @@ public class ThcBlock extends TntBlock implements PolymerTexturedBlock, ICustomT
         // TntBlockMixin cancels vanilla TntBlock#primeTnt for ICustomTntBlock blocks, which also
         // skips vanilla's block-to-air removal that normally follows a successful primeTnt() call.
         world.setBlockState(pos, Blocks.AIR.getDefaultState(), 11);
+    }
+
+    /**
+     * A real nearby explosion (a creeper, real TNT, anything) destroying this block would
+     * otherwise fall through to vanilla's own {@code TntBlock#onDestroyedByExplosion}, which
+     * spawns a genuine vanilla TntEntity - turning THC into a real destructive explosion the
+     * instant something else blows up next to it. Spawns {@link PrimedThc} instead, with the same
+     * short randomized fuse vanilla itself uses here (notably shorter than a freshly-lit one -
+     * see {@code TntBlock#onDestroyedByExplosion}), so chain reactions started by outside sources
+     * still race along the same way a THC-to-THC chain already does.
+     */
+    @Override
+    public void onDestroyedByExplosion(ServerWorld world, BlockPos pos, Explosion explosion) {
+        if (!world.getGameRules().getBoolean(GameRules.TNT_EXPLODES)) return;
+
+        var primed = new PrimedThc(world, pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, explosion.getCausingEntity());
+        int defaultFuse = primed.getFuse();
+        primed.setFuse(world.getRandom().nextInt(defaultFuse / 4) + defaultFuse / 8);
+        world.spawnEntity(primed);
     }
 }

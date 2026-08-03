@@ -61,7 +61,12 @@ public class NirvanaBlocks {
             new Item.Settings().component(DataComponentTypes.EQUIPPABLE,
                     EquippableComponent.builder(EquipmentSlot.HEAD).swappable(false).build()));
 
-    public static final Block POTTED_WILD_HEMP = registerBlock("potted_wild_hemp", settings -> new PottedWildHemp(WILD_HEMP, settings), Block.Settings.copy(Blocks.POTTED_FERN));
+    // Own loot table for the same reason as reefer_head above - copy() alone didn't leave it
+    // dropping anything when broken directly. Drops both the pot and the plant, matching
+    // vanilla's own potted flowers (confirmed - breaking one directly returns both, not just
+    // the pot).
+    public static final Block POTTED_WILD_HEMP = registerBlock("potted_wild_hemp", settings -> new PottedWildHemp(WILD_HEMP, settings),
+            Block.Settings.copy(Blocks.POTTED_FERN).lootTable(lootTableOf("potted_wild_hemp")));
 
     public static final Block HEMP_CRATE = registerBlock("hemp_crate", NirvanaBasketBlock::new, Block.Settings.copy(Blocks.WHITE_WOOL).strength(0.5F).sounds(BlockSoundGroup.SAND));
     public static final BlockItem HEMP_CRATE_ITEM = registerBlockItem("hemp_crate", settings -> new NirvanaTexturedBlockItem(HEMP_CRATE, settings), new Item.Settings());
