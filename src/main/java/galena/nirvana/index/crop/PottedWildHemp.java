@@ -9,15 +9,15 @@ import eu.pb4.polymer.blocks.api.PolymerBlockResourceUtils;
 import eu.pb4.polymer.blocks.api.PolymerTexturedBlock;
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.FlowerPotBlock;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.FlowerPotBlock;
+import eu.pb4.factorytools.api.util.LazyItemStack;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.resources.Identifier;
+import net.minecraft.core.BlockPos;
 import org.jetbrains.annotations.Nullable;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 /**
  * A standalone flowerpot holding {@link galena.nirvana.index.NirvanaBlocks#WILD_HEMP}.
@@ -35,12 +35,14 @@ import xyz.nucleoid.packettweaker.PacketContext;
  * {@link ItemDisplayElement}.
  */
 public class PottedWildHemp extends FlowerPotBlock implements PolymerTexturedBlock, FactoryBlock {
-    private static final ItemStack DISPLAY_MODEL = ItemDisplayElementUtil.getModel(Identifier.of(Nirvana.MOD_ID, "block/potted_wild_hemp"));
+    // Deliberately lazy: resolving a real ItemStack this early (static init, at mod-init time)
+    // runs before components are bound and crashes with "Components not bound yet".
+    private static final LazyItemStack DISPLAY_MODEL = ItemDisplayElementUtil.getModel(Identifier.fromNamespaceAndPath(Nirvana.MOD_ID, "block/potted_wild_hemp"));
     private final BlockState model;
 
-    public PottedWildHemp(Block content, Settings settings) {
+    public PottedWildHemp(Block content, Properties settings) {
         super(content, settings);
-        this.model = PolymerBlockResourceUtils.requestEmpty(BlockModelType.PLANT_BLOCK);
+        this.model = PolymerBlockResourceUtils.requestEmpty(BlockModelType.PLANT);
     }
 
     @Override
@@ -49,7 +51,7 @@ public class PottedWildHemp extends FlowerPotBlock implements PolymerTexturedBlo
     }
 
     @Override
-    public @Nullable ElementHolder createElementHolder(ServerWorld world, BlockPos pos, BlockState initialBlockState) {
+    public @Nullable ElementHolder createElementHolder(ServerLevel world, BlockPos pos, BlockState initialBlockState) {
         return new Model();
     }
 

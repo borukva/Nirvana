@@ -1,4 +1,5 @@
 {
   "asset_id": "nirvana:entity/cat/sprigatito",
+  "baby_asset_id": "nirvana:entity/cat/sprigatito",
   "spawn_conditions": []
 }

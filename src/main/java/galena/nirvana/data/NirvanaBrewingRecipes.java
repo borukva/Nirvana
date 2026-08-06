@@ -1,13 +1,12 @@
 package galena.nirvana.data;
 
 import galena.nirvana.index.NirvanaItems;
-import net.fabricmc.fabric.api.registry.FabricBrewingRecipeRegistryBuilder;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.PotionContentsComponent;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.potion.Potions;
-import net.minecraft.recipe.BrewingRecipeRegistry;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.world.item.alchemy.PotionBrewing;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -28,11 +27,10 @@ import org.jetbrains.annotations.Nullable;
  * delegates to {@link #getCustomResult}.
  * <p>
  * {@code weed} still needs to be a *valid ingredient* for the GUI/hopper to accept it in the top
- * slot at all - {@code registerPotionRecipe} doesn't have the same PotionItem restriction on its
- * ingredient parameter (vanilla itself registers plain items like glowstone dust/sugar/nether
- * wart this way), so {@link #register} registers a harmless water -> water no-op recipe purely to
- * get {@code weed} into the registry's valid-ingredient list; the mixin's HEAD injection always
- * intercepts water + weed before vanilla's own no-op recipe would ever run.
+ * slot at all - {@link galena.nirvana.mixin.PotionBrewingMixin} registers a harmless water ->
+ * water no-op recipe on vanilla's own {@code PotionBrewing.Builder} purely to get {@code weed}
+ * into the registry's valid-ingredient list; {@link galena.nirvana.mixin.BrewingRecipeRegistryMixin}'s
+ * HEAD injection always intercepts water + weed before vanilla's own no-op recipe would ever run.
  * <p>
  * Once a bong/potion_bong is sitting in a stand's slot (placed there by the stand's own internal
  * brew-completion logic, which bypasses the normal slot-insertion check entirely), a hopper still
@@ -41,46 +39,49 @@ import org.jetbrains.annotations.Nullable;
  * it too.
  */
 public class NirvanaBrewingRecipes {
+    /**
+     * No-op - kept only so {@code Nirvana.java}'s init order stays readable. The water -> water
+     * no-op registration itself now lives in {@link galena.nirvana.mixin.PotionBrewingMixin}
+     * (piggybacking on vanilla's own {@code PotionBrewing.addVanillaMixes} instead of the Fabric
+     * API registry this used to go through, which doesn't exist anymore).
+     */
     public static void register() {
-        FabricBrewingRecipeRegistryBuilder.BUILD.register(builder ->
-                builder.registerPotionRecipe(Potions.WATER, NirvanaItems.WEED, Potions.WATER)
-        );
     }
 
     public static boolean isBongRelated(ItemStack stack) {
-        return stack.isOf(NirvanaItems.BONG) || stack.isOf(NirvanaItems.POTION_BONG);
+        return stack.getItem() == (NirvanaItems.BONG) || stack.getItem() == (NirvanaItems.POTION_BONG);
     }
 
     @Nullable
-    public static ItemStack getCustomResult(ItemStack precursor, ItemStack ingredient, BrewingRecipeRegistry registry) {
-        if (precursor.isOf(Items.POTION) && ingredient.isOf(NirvanaItems.WEED)) {
-            var contents = precursor.get(DataComponentTypes.POTION_CONTENTS);
-            if (contents != null && contents.matches(Potions.WATER)) {
+    public static ItemStack getCustomResult(ItemStack precursor, ItemStack ingredient, PotionBrewing registry) {
+        if (precursor.getItem() == (Items.POTION) && ingredient.getItem() == (NirvanaItems.WEED)) {
+            var contents = precursor.get(DataComponents.POTION_CONTENTS);
+            if (contents != null && contents.is(Potions.WATER)) {
                 return new ItemStack(NirvanaItems.BONG);
             }
             return null;
         }
 
-        if (precursor.isOf(NirvanaItems.BONG) && ingredient.isOf(Items.NETHER_WART)) {
+        if (precursor.getItem() == (NirvanaItems.BONG) && ingredient.getItem() == (Items.NETHER_WART)) {
             var stack = withSameDamage(new ItemStack(NirvanaItems.POTION_BONG), precursor);
-            stack.set(DataComponentTypes.POTION_CONTENTS, new PotionContentsComponent(Potions.AWKWARD));
+            stack.set(DataComponents.POTION_CONTENTS, new PotionContents(Potions.AWKWARD));
             return stack;
         }
 
-        if (precursor.isOf(NirvanaItems.POTION_BONG)) {
-            var contents = precursor.get(DataComponentTypes.POTION_CONTENTS);
+        if (precursor.getItem() == (NirvanaItems.POTION_BONG)) {
+            var contents = precursor.get(DataComponents.POTION_CONTENTS);
             if (contents == null) return null;
 
             var probe = new ItemStack(Items.POTION);
-            probe.set(DataComponentTypes.POTION_CONTENTS, contents);
+            probe.set(DataComponents.POTION_CONTENTS, contents);
 
-            if (!registry.hasRecipe(probe, ingredient)) return null;
+            if (!registry.hasPotionMix(probe, ingredient)) return null;
 
-            var newContents = registry.craft(ingredient, probe).get(DataComponentTypes.POTION_CONTENTS);
+            var newContents = registry.mix(ingredient, probe).get(DataComponents.POTION_CONTENTS);
             if (newContents == null) return null;
 
             var stack = withSameDamage(new ItemStack(NirvanaItems.POTION_BONG), precursor);
-            stack.set(DataComponentTypes.POTION_CONTENTS, newContents);
+            stack.set(DataComponents.POTION_CONTENTS, newContents);
             return stack;
         }
 
@@ -88,8 +89,8 @@ public class NirvanaBrewingRecipes {
     }
 
     private static ItemStack withSameDamage(ItemStack fresh, ItemStack precursor) {
-        if (fresh.isDamageable() && precursor.isDamageable()) {
-            fresh.setDamage(precursor.getDamage());
+        if (fresh.isDamageableItem() && precursor.isDamageableItem()) {
+            fresh.setDamageValue(precursor.getDamageValue());
         }
         return fresh;
     }

@@ -9,39 +9,39 @@ import eu.pb4.polymer.blocks.api.PolymerBlockResourceUtils;
 import eu.pb4.polymer.blocks.api.PolymerTexturedBlock;
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.Fertilizable;
-import net.minecraft.block.FlowerBlock;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldView;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.BonemealableBlock;
+import net.minecraft.world.level.block.FlowerBlock;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.Holder;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import org.jetbrains.annotations.Nullable;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
-public class WildHemp extends FlowerBlock implements PolymerTexturedBlock, FactoryBlock, Fertilizable {
+public class WildHemp extends FlowerBlock implements PolymerTexturedBlock, FactoryBlock, BonemealableBlock {
     private final BlockState model;
     private String modelId;
 
-    public WildHemp(RegistryEntry<StatusEffect> suspiciousStewEffect, int effectDuration, Settings settings, String modelId) {
+    public WildHemp(Holder<MobEffect> suspiciousStewEffect, int effectDuration, Properties settings, String modelId) {
         super(suspiciousStewEffect, effectDuration, settings);
-        this.model = PolymerBlockResourceUtils.requestEmpty(BlockModelType.PLANT_BLOCK);
+        this.model = PolymerBlockResourceUtils.requestEmpty(BlockModelType.PLANT);
         this.modelId = modelId;
     }
 
     @Override
-    public @Nullable ElementHolder createElementHolder(ServerWorld world, BlockPos pos, BlockState initialBlockState) {
+    public @Nullable ElementHolder createElementHolder(ServerLevel world, BlockPos pos, BlockState initialBlockState) {
         return new FlowerModel(initialBlockState, modelId);
     }
 
     @Override
     public BlockState getPolymerBreakEventBlockState(BlockState state, PacketContext context) {
-        return Blocks.WHEAT.getDefaultState();
+        return Blocks.WHEAT.defaultBlockState();
     }
 
     @Override
@@ -50,22 +50,22 @@ public class WildHemp extends FlowerBlock implements PolymerTexturedBlock, Facto
     }
 
     @Override
-    public boolean isFertilizable(WorldView world, BlockPos pos, BlockState state) {
+    public boolean isValidBonemealTarget(LevelReader world, BlockPos pos, BlockState state) {
         return true;
     }
 
     @Override
-    public boolean canGrow(World world, Random random, BlockPos pos, BlockState state) {
+    public boolean isBonemealSuccess(Level world, RandomSource random, BlockPos pos, BlockState state) {
         return true;
     }
 
     @Override
-    public void grow(ServerWorld world, Random random, BlockPos pos, BlockState state) {
-        dropStack(world, pos, new ItemStack(this));
+    public void performBonemeal(ServerLevel world, RandomSource random, BlockPos pos, BlockState state) {
+        popResource(world, pos, new ItemStack(this));
     }
 
     static class FlowerModel extends BlockModel {
-        public ItemStack modelFlower;
+        public eu.pb4.factorytools.api.util.LazyItemStack modelFlower;
         public ItemDisplayElement main;
 
         public FlowerModel(BlockState blockState, String modelId) {

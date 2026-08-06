@@ -2,21 +2,26 @@ package galena.nirvana.index;
 
 import galena.nirvana.Nirvana;
 import eu.pb4.polymer.core.api.item.PolymerItem;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.item.consume.UseAction;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.stat.Stats;
-import net.minecraft.text.Text;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.Identifier;
-import net.minecraft.world.World;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.ItemUseAnimation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.stats.Stats;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.Level;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A bong variant pre-filled with a vanilla potion's effects (dynamic per-stack, via the stack's
@@ -33,14 +38,14 @@ public class PotionBongItem extends Item implements PolymerItem {
     private static final int COOLDOWN_TICKS = 20;
     private static final int USE_DURATION = 40;
 
-    public PotionBongItem(Settings settings) {
+    public PotionBongItem(Properties settings) {
         super(settings);
     }
 
     @Override
-    public Text getName(ItemStack stack) {
-        var contents = stack.get(DataComponentTypes.POTION_CONTENTS);
-        var base = Text.translatable("item." + Nirvana.MOD_ID + ".potion_bong");
+    public Component getName(ItemStack stack) {
+        var contents = stack.get(DataComponents.POTION_CONTENTS);
+        var base = Component.translatable("item." + Nirvana.MOD_ID + ".potion_bong");
         return contents != null ? contents.getName("item." + Nirvana.MOD_ID + ".potion_bong.effect.") : base;
     }
 
@@ -50,55 +55,57 @@ public class PotionBongItem extends Item implements PolymerItem {
     }
 
     @Override
-    public Identifier getPolymerItemModel(ItemStack itemStack, PacketContext context) {
-        return Identifier.of(Nirvana.MOD_ID, "potion_bong");
+    public Identifier getPolymerItemModel(ItemStack itemStack, PacketContext context, HolderLookup.Provider registries) {
+        return Identifier.fromNamespaceAndPath(Nirvana.MOD_ID, "potion_bong");
     }
 
     @Override
-    public UseAction getUseAction(ItemStack stack) {
-        return UseAction.BOW;
+    public ItemUseAnimation getUseAnimation(ItemStack stack) {
+        return ItemUseAnimation.BOW;
     }
 
     @Override
-    public int getMaxUseTime(ItemStack stack, LivingEntity user) {
+    public int getUseDuration(ItemStack stack, LivingEntity user) {
         return USE_DURATION;
     }
 
     @Override
-    public ActionResult use(World world, PlayerEntity user, Hand hand) {
-        ItemStack stack = user.getStackInHand(hand);
-        if (stack.get(DataComponentTypes.POTION_CONTENTS) == null) {
-            return ActionResult.PASS;
+    public InteractionResult use(Level world, Player user, InteractionHand hand) {
+        ItemStack stack = user.getItemInHand(hand);
+        if (stack.get(DataComponents.POTION_CONTENTS) == null) {
+            return InteractionResult.PASS;
         }
-        if (user.getItemCooldownManager().isCoolingDown(stack)) {
-            return ActionResult.PASS;
+        if (user.getCooldowns().isOnCooldown(stack)) {
+            return InteractionResult.PASS;
         }
-        user.setCurrentHand(hand);
-        return ActionResult.SUCCESS;
+        user.startUsingItem(hand);
+        return InteractionResult.SUCCESS;
     }
 
     @Override
-    public ItemStack finishUsing(ItemStack stack, World world, LivingEntity user) {
-        var contents = stack.get(DataComponentTypes.POTION_CONTENTS);
-        if (world instanceof ServerWorld && contents != null) {
+    public ItemStack finishUsingItem(ItemStack stack, Level world, LivingEntity user) {
+        var contents = stack.get(DataComponents.POTION_CONTENTS);
+        if (world instanceof ServerLevel && contents != null) {
             world.playSound(null, user.getX(), user.getY(), user.getZ(),
-                    NirvanaSounds.BONG, user.getSoundCategory(), 0.5F, 1.0F);
+                    NirvanaSounds.BONG, user.getSoundSource(), 0.5F, 1.0F);
 
-            SmokingItem.scheduleSmoke((ServerWorld) world, user.getUuid());
-            contents.apply(user, 1.0F);
+            SmokingItem.scheduleSmoke((ServerLevel) world, user.getUUID());
+            List<MobEffectInstance> effects = new ArrayList<>();
+            contents.forEachEffect(effects::add, 1.0F);
+            SmokingItem.scheduleEffects(user.getUUID(), effects);
 
             boolean creative = false;
-            if (user instanceof PlayerEntity player) {
-                player.getItemCooldownManager().set(stack, COOLDOWN_TICKS);
-                player.incrementStat(Stats.USED.getOrCreateStat(this));
-                creative = player.getAbilities().creativeMode;
+            if (user instanceof Player player) {
+                player.getCooldowns().addCooldown(stack, COOLDOWN_TICKS);
+                player.awardStat(Stats.ITEM_USED.get(this));
+                creative = player.getAbilities().instabuild;
             }
 
             // Creative mode never spends the item, same as vanilla consumables.
             if (!creative) {
-                if (stack.isDamageable()) {
-                    stack.setDamage(stack.getDamage() + 1);
-                    if (stack.getDamage() >= stack.getMaxDamage()) {
+                if (stack.isDamageableItem()) {
+                    stack.setDamageValue(stack.getDamageValue() + 1);
+                    if (stack.getDamageValue() >= stack.getMaxDamage()) {
                         return new ItemStack(Items.GLASS_BOTTLE);
                     }
                 } else {

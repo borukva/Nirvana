@@ -1,8 +1,8 @@
 package galena.nirvana.mixin;
 
 import galena.nirvana.data.NirvanaBrewingRecipes;
-import net.minecraft.block.entity.BrewingStandBlockEntity;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.level.block.entity.BrewingStandBlockEntity;
+import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  */
 @Mixin(BrewingStandBlockEntity.class)
 public abstract class BrewingStandBlockEntityMixin {
-    @Inject(method = "isValid", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "canPlaceItem", at = @At("HEAD"), cancellable = true)
     private void nirvana$isValid(int slot, ItemStack stack, CallbackInfoReturnable<Boolean> cir) {
         if (slot >= 0 && slot <= 2 && NirvanaBrewingRecipes.isBongRelated(stack)) {
             cir.setReturnValue(true);

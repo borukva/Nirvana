@@ -5,11 +5,11 @@ import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.api.elements.InteractionElement;
 import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
 import galena.nirvana.Nirvana;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.Mth;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -34,7 +34,7 @@ import org.joml.Vector3f;
  * (with interpolation enabled below so it doesn't snap/teleport between server ticks); rotations
  * aren't, so they're computed from the source entity here every tick - head yaw/pitch track the
  * look direction independently of the body exactly like a vanilla creeper, and leg swing reuses
- * {@link net.minecraft.entity.LivingEntity#limbAnimator}, the same speed/animation-progress data
+ * {@link net.minecraft.world.entity.LivingEntity#limbAnimator}, the same speed/animation-progress data
  * vanilla's own quadruped models animate off of.
  */
 public class ReeferModel extends ElementHolder {
@@ -88,7 +88,7 @@ public class ReeferModel extends ElementHolder {
         // (the vanilla tool for "invisible but clickable" hitboxes) redirecting hits back to the
         // real (network-hidden) Reefer entity.
         this.hitbox = InteractionElement.redirect(source);
-        this.hitbox.setSize(source.getWidth(), source.getHeight());
+        this.hitbox.setSize(source.getBbWidth(), source.getBbHeight());
         addPassengerElement(this.hitbox);
     }
 
@@ -146,7 +146,7 @@ public class ReeferModel extends ElementHolder {
 
     private static ItemStack modelStack(String name) {
         var stack = new ItemStack(Items.PAPER);
-        stack.set(DataComponentTypes.ITEM_MODEL, Identifier.of(Nirvana.MOD_ID, name));
+        stack.set(DataComponents.ITEM_MODEL, Identifier.fromNamespaceAndPath(Nirvana.MOD_ID, name));
         return stack;
     }
 
@@ -156,8 +156,8 @@ public class ReeferModel extends ElementHolder {
      * the mob while squashing it slightly shorter.
      */
     private void applySwellScale(float swelling) {
-        float wobble = 1F + MathHelper.sin(swelling * 100F) * swelling * 0.01F;
-        float eased = MathHelper.clamp(swelling, 0F, 1F);
+        float wobble = 1F + Mth.sin(swelling * 100F) * swelling * 0.01F;
+        float eased = Mth.clamp(swelling, 0F, 1F);
         eased = eased * eased;
         eased = eased * eased;
 
@@ -192,20 +192,20 @@ public class ReeferModel extends ElementHolder {
     protected void onTick() {
         updateWalkCycle();
 
-        float swelling = this.source.getLerpedFuseTime(0F);
+        float swelling = this.source.getSwelling(0F);
         boolean rising = swelling > this.lastSwelling;
         this.lastSwelling = swelling;
         updateAppearance(swelling, rising);
         applySwellScale(swelling);
 
-        var bodyRotation = new Quaternionf().rotateY(-this.source.getBodyYaw() * MathHelper.RADIANS_PER_DEGREE);
+        var bodyRotation = new Quaternionf().rotateY(-this.source.yBodyRot * Mth.DEG_TO_RAD);
         this.body.setLeftRotation(bodyRotation);
 
         this.head.setLeftRotation(new Quaternionf()
-                .rotateY(-this.source.getHeadYaw() * MathHelper.RADIANS_PER_DEGREE)
-                .rotateX(this.source.getPitch() * MathHelper.RADIANS_PER_DEGREE));
+                .rotateY(-this.source.getYHeadRot() * Mth.DEG_TO_RAD)
+                .rotateX(this.source.getXRot() * Mth.DEG_TO_RAD));
 
-        float swing = MathHelper.cos(this.walkPhase) * LEG_SWING_AMPLITUDE_RAD * this.walkSpeed;
+        float swing = Mth.cos(this.walkPhase) * LEG_SWING_AMPLITUDE_RAD * this.walkSpeed;
         for (Leg leg : this.legs) {
             // Translation is applied after rotation, so the hip offset is in world space and has
             // to be turned by the body's yaw itself - otherwise the legs stay put while the body

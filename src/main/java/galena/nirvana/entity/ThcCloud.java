@@ -3,22 +3,22 @@ package galena.nirvana.entity;
 import galena.nirvana.effects.NirvanaEffects;
 import galena.nirvana.index.NirvanaBlocks;
 import galena.nirvana.index.SmokingItem;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.AreaEffectCloudEntity;
-import net.minecraft.entity.EntityDimensions;
-import net.minecraft.entity.EntityPose;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.passive.CatEntity;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.TypeFilter;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.entity.AreaEffectCloud;
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.animal.feline.Cat;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.level.entity.EntityTypeTest;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -53,10 +53,10 @@ public class ThcCloud {
      * knockback a real explosion gives nearby entities - tapered to nothing at the edge of range. */
     private static final double CHAIN_REACTION_KNOCKBACK = 0.4;
 
-    public static AreaEffectCloudEntity spawnCloud(ServerWorld world, Vec3d at, float size, int peaceSeconds) {
-        world.createExplosion(null, at.x, at.y, at.z, size / 10, World.ExplosionSourceType.NONE);
+    public static AreaEffectCloud spawnCloud(ServerLevel world, Vec3 at, float size, int peaceSeconds) {
+        world.explode(null, at.x, at.y, at.z, size / 10, Level.ExplosionInteraction.NONE);
 
-        world.spawnParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE,
+        world.sendParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE,
                 at.x, at.y + SMOKE_PUFF_HEIGHT, at.z,
                 SMOKE_PUFF_COUNT,
                 size * 0.8, SMOKE_PUFF_HEIGHT, size * 0.8,
@@ -70,10 +70,10 @@ public class ThcCloud {
         Set<LivingEntity> alreadyStacked = new HashSet<>();
         // Spawned lower by the same amount the hitbox is padded downward, so the padded box still
         // spans from (at.y - below) to (at.y + 0.5 + above) instead of drifting the whole range down.
-        var cloud = new AreaEffectCloudEntity(world, at.x, at.y - VERTICAL_PADDING_BELOW, at.z) {
+        var cloud = new AreaEffectCloud(world, at.x, at.y - VERTICAL_PADDING_BELOW, at.z) {
             @Override
-            public EntityDimensions getDimensions(EntityPose pose) {
-                return EntityDimensions.changing(getRadius() * 2, CLOUD_HEIGHT);
+            public EntityDimensions getDimensions(Pose pose) {
+                return EntityDimensions.scalable(getRadius() * 2, CLOUD_HEIGHT);
             }
 
             @Override
@@ -81,19 +81,19 @@ public class ThcCloud {
                 super.tick();
                 // Deliberately not vanilla's own cloud.addEffect(...): that applies one fixed
                 // amplifier to everyone it touches, and cats need a lighter dose than the rest,
-                // which vanilla's own AreaEffectCloudEntity has no per-entity-type hook for.
-                if (getEntityWorld() instanceof ServerWorld serverWorld) {
+                // which vanilla's own AreaEffectCloud has no per-entity-type hook for.
+                if (level() instanceof ServerLevel serverWorld) {
                     applyPeaceByType(serverWorld, this, effectDuration, alreadyStacked);
                 }
             }
         };
-        cloud.setParticleType(ParticleTypes.CAMPFIRE_COSY_SMOKE);
+        cloud.setCustomParticle(ParticleTypes.CAMPFIRE_COSY_SMOKE);
         float radius = 1.5F * size;
         cloud.setRadius(radius);
-        cloud.setRadiusGrowth(-0.01F);
+        cloud.setRadiusPerTick(-0.01F);
         cloud.setDuration(CLOUD_DURATION_TICKS);
 
-        world.spawnEntity(cloud);
+        world.addFreshEntity(cloud);
         triggerNearbyThc(world, at, CHAIN_REACTION_RADIUS_PER_SIZE * size);
         return cloud;
     }
@@ -105,14 +105,14 @@ public class ThcCloud {
      * exact same way repeated puffs already do, instead of flattening them back to the blast's own
      * fixed level. Only ever runs once per entity per cloud - see {@code alreadyStacked}.
      */
-    private static void applyPeaceByType(ServerWorld world, AreaEffectCloudEntity cloud, int effectDuration, Set<LivingEntity> alreadyStacked) {
-        var targets = world.getEntitiesByType(TypeFilter.instanceOf(LivingEntity.class), cloud.getBoundingBox(),
-                target -> target.isAffectedBySplashPotions() && !alreadyStacked.contains(target));
+    private static void applyPeaceByType(ServerLevel world, AreaEffectCloud cloud, int effectDuration, Set<LivingEntity> alreadyStacked) {
+        var targets = world.getEntities(EntityTypeTest.forClass(LivingEntity.class), cloud.getBoundingBox(),
+                target -> target.isAffectedByPotions() && !alreadyStacked.contains(target));
 
         for (LivingEntity target : targets) {
             alreadyStacked.add(target);
-            int amplifier = target instanceof CatEntity ? CAT_AMPLIFIER : DEFAULT_AMPLIFIER;
-            SmokingItem.applyEffect(target, new StatusEffectInstance(NirvanaEffects.PEACE, effectDuration, amplifier));
+            int amplifier = target instanceof Cat ? CAT_AMPLIFIER : DEFAULT_AMPLIFIER;
+            SmokingItem.applyEffect(target, new MobEffectInstance(NirvanaEffects.PEACE, effectDuration, amplifier));
         }
     }
 
@@ -136,16 +136,16 @@ public class ThcCloud {
      * resistance along the way, not just straight-line distance - so a THC block hidden behind a
      * few blocks of stone survives even well within the nominal radius, same as real TNT would.
      */
-    private static void triggerNearbyThc(ServerWorld world, Vec3d at, double radius) {
+    private static void triggerNearbyThc(ServerLevel world, Vec3 at, double radius) {
         int r = (int) Math.ceil(radius);
         double radiusSqr = radius * radius;
         float power = (float) (radius * RAY_POWER_PER_RADIUS);
-        BlockPos center = BlockPos.ofFloored(at);
+        BlockPos center = BlockPos.containing(at);
 
-        for (BlockPos pos : BlockPos.iterate(center.add(-r, -r, -r), center.add(r, r, r))) {
-            if (!world.getBlockState(pos).isOf(NirvanaBlocks.THC)) continue;
-            Vec3d blockCenter = Vec3d.ofCenter(pos);
-            if (blockCenter.squaredDistanceTo(at) > radiusSqr) continue;
+        for (BlockPos pos : BlockPos.betweenClosed(center.offset(-r, -r, -r), center.offset(r, r, r))) {
+            if (world.getBlockState(pos).getBlock() != NirvanaBlocks.THC) continue;
+            Vec3 blockCenter = Vec3.atCenterOf(pos);
+            if (blockCenter.distanceToSqr(at) > radiusSqr) continue;
             if (!reachesThroughBlocks(world, at, blockCenter, power)) continue;
 
             var primed = new PrimedThc(world, pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, null);
@@ -155,9 +155,9 @@ public class ThcCloud {
             int defaultFuse = primed.getFuse();
             primed.setFuse(world.getRandom().nextInt(defaultFuse / 4) + defaultFuse / 8);
             knockBack(primed, at, blockCenter, radius);
-            world.spawnEntity(primed);
-            world.playSound(null, primed.getX(), primed.getY(), primed.getZ(), SoundEvents.ENTITY_TNT_PRIMED, SoundCategory.BLOCKS, 1.0F, 1.0F);
-            world.setBlockState(pos, Blocks.AIR.getDefaultState(), 11);
+            world.addFreshEntity(primed);
+            world.playSound(null, primed.getX(), primed.getY(), primed.getZ(), SoundEvents.TNT_PRIMED, SoundSource.BLOCKS, 1.0F, 1.0F);
+            world.setBlock(pos, Blocks.AIR.defaultBlockState(), 11);
         }
     }
 
@@ -168,30 +168,30 @@ public class ThcCloud {
      * from 1 right at the centre to 0 at the edge of {@code radius} - no artificial extra upward
      * push tacked on, so it reads as a real shove rather than a scripted little hop.
      */
-    private static void knockBack(PrimedThc primed, Vec3d blastCenter, Vec3d targetPos, double radius) {
-        Vec3d away = targetPos.subtract(blastCenter);
+    private static void knockBack(PrimedThc primed, Vec3 blastCenter, Vec3 targetPos, double radius) {
+        Vec3 away = targetPos.subtract(blastCenter);
         double distance = away.length();
         if (distance < 1.0E-4) return;
 
         double impact = Math.max(0, 1.0 - distance / radius) * CHAIN_REACTION_KNOCKBACK;
-        Vec3d kick = away.multiply(impact / distance);
-        primed.setVelocity(primed.getVelocity().add(kick));
+        Vec3 kick = away.scale(impact / distance);
+        primed.setDeltaMovement(primed.getDeltaMovement().add(kick));
     }
 
     /** Traces a single ray from {@code from} to {@code to}, vanilla-explosion-style, returning
      * whether any blast intensity is left by the time it arrives. */
-    private static boolean reachesThroughBlocks(ServerWorld world, Vec3d from, Vec3d to, float power) {
-        Vec3d offset = to.subtract(from);
+    private static boolean reachesThroughBlocks(ServerLevel world, Vec3 from, Vec3 to, float power) {
+        Vec3 offset = to.subtract(from);
         double length = offset.length();
         if (length < 1.0E-4) return true;
-        Vec3d step = offset.multiply(RAY_STEP / length);
+        Vec3 step = offset.scale(RAY_STEP / length);
 
         float intensity = power;
-        Vec3d pos = from;
+        Vec3 pos = from;
         for (double travelled = 0; travelled < length; travelled += RAY_STEP) {
-            BlockState state = world.getBlockState(BlockPos.ofFloored(pos));
+            BlockState state = world.getBlockState(BlockPos.containing(pos));
             if (!state.isAir()) {
-                intensity -= (state.getBlock().getBlastResistance() + 0.3F) * RAY_STEP;
+                intensity -= (state.getBlock().getExplosionResistance() + 0.3F) * RAY_STEP;
             }
             intensity -= RAY_DECAY_PER_STEP;
             if (intensity <= 0) return false;

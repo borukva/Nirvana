@@ -2,15 +2,15 @@ package galena.nirvana.mixin;
 
 import galena.nirvana.Nirvana;
 import galena.nirvana.index.NirvanaSounds;
-import net.minecraft.block.entity.JukeboxBlockEntity;
-import net.minecraft.block.jukebox.JukeboxSong;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.packet.s2c.play.StopSoundS2CPacket;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.util.Identifier;
+import net.minecraft.world.level.block.entity.JukeboxBlockEntity;
+import net.minecraft.world.item.JukeboxSong;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.protocol.game.ClientboundStopSoundPacket;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.resources.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -26,28 +26,28 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  */
 @Mixin(JukeboxBlockEntity.class)
 public abstract class JukeboxBlockEntityMixin {
-    private static final RegistryKey<JukeboxSong> JAM = RegistryKey.of(RegistryKeys.JUKEBOX_SONG, Identifier.of(Nirvana.MOD_ID, "jam"));
+    private static final ResourceKey<JukeboxSong> JAM = ResourceKey.create(Registries.JUKEBOX_SONG, Identifier.fromNamespaceAndPath(Nirvana.MOD_ID, "jam"));
 
     @Unique
     private boolean nirvana$playingJam = false;
 
-    @Inject(method = "setStack", at = @At("TAIL"))
+    @Inject(method = "setTheItem", at = @At("TAIL"))
     private void nirvana$onSetStack(ItemStack stack, CallbackInfo ci) {
         JukeboxBlockEntity self = (JukeboxBlockEntity) (Object) this;
-        if (!(self.getWorld() instanceof ServerWorld world)) {
+        if (!(self.getLevel() instanceof ServerLevel world)) {
             return;
         }
 
-        boolean isJam = JukeboxSong.getSongEntryFromStack(world.getRegistryManager(), stack)
-                .map(entry -> entry.matchesKey(JAM))
+        boolean isJam = JukeboxSong.fromStack(stack)
+                .map(entry -> entry.is(JAM))
                 .orElse(false);
 
         if (isJam && !this.nirvana$playingJam) {
-            world.playSound(null, self.getPos(), NirvanaSounds.MUSIC_DISC_JAM, SoundCategory.RECORDS, 4.0F, 1.0F);
+            world.playSound(null, self.getBlockPos(), NirvanaSounds.MUSIC_DISC_JAM, SoundSource.RECORDS, 4.0F, 1.0F);
         } else if (!isJam && this.nirvana$playingJam) {
-            var packet = new StopSoundS2CPacket(NirvanaSounds.MUSIC_DISC_JAM.id(), SoundCategory.RECORDS);
-            for (var player : world.getPlayers()) {
-                player.networkHandler.sendPacket(packet);
+            var packet = new ClientboundStopSoundPacket(NirvanaSounds.MUSIC_DISC_JAM.location(), SoundSource.RECORDS);
+            for (var player : world.players()) {
+                player.connection.send(packet);
             }
         }
         this.nirvana$playingJam = isJam;

@@ -1,106 +1,105 @@
 package galena.nirvana.datagen;
 
 import galena.nirvana.index.NirvanaItems;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
-import net.fabricmc.fabric.api.datagen.v1.provider.FabricBlockLootTableProvider;
-import net.minecraft.block.Block;
-import net.minecraft.block.enums.DoubleBlockHalf;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.Enchantments;
-import net.minecraft.item.Item;
-import net.minecraft.item.Items;
-import net.minecraft.loot.LootPool;
-import net.minecraft.loot.LootTable;
-import net.minecraft.loot.condition.BlockStatePropertyLootCondition;
-import net.minecraft.loot.condition.LootCondition;
-import net.minecraft.loot.condition.MatchToolLootCondition;
-import net.minecraft.loot.entry.ItemEntry;
-import net.minecraft.loot.function.ApplyBonusLootFunction;
-import net.minecraft.loot.function.SetCountLootFunction;
-import net.minecraft.loot.provider.number.UniformLootNumberProvider;
-import net.minecraft.predicate.item.ItemPredicate;
-import net.minecraft.predicate.StatePredicate;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.state.property.Properties;
+import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
+import net.fabricmc.fabric.api.datagen.v1.provider.FabricBlockLootSubProvider;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition;
+import net.minecraft.world.level.storage.loot.predicates.MatchTool;
+import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
+import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
+import net.minecraft.advancements.predicates.ItemPredicate;
+import net.minecraft.advancements.predicates.StatePropertiesPredicate;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
 import java.util.concurrent.CompletableFuture;
+import net.minecraft.core.HolderLookup;
 
 import static galena.nirvana.index.NirvanaBlocks.*;
 
-public class ModLootTableProvider extends FabricBlockLootTableProvider {
-    public ModLootTableProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
-        super(dataOutput, registryLookup);
+/**
+ * {@code FabricBlockLootTableProvider} was renamed to {@link FabricBlockLootSubProvider} - still a
+ * standalone, directly-registrable {@code DataProvider} (see {@link NirvanaDataGenerator}), and
+ * still the class to use instead of vanilla's own {@code BlockLootSubProvider} directly: unlike
+ * vanilla's version, its strict-validation completeness check (every block needs a loot table)
+ * is scoped to this mod's own namespace instead of every block in the game.
+ */
+public class ModLootTableProvider extends FabricBlockLootSubProvider {
+    public ModLootTableProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registriesFuture) {
+        super(output, registriesFuture);
     }
+
     @Override
     public void generate() {
-        addCropDrop(HEMP, NirvanaItems.HEMP, NirvanaItems.HEMP_SEEDS);
+        // Kept as a hand-written data/nirvana/loot_table/blocks/potted_wild_hemp.json (drops both
+        // the flower pot and the wild hemp, matching every vanilla potted-plant loot table)
+        // instead of being regenerated here.
+        excludeFromStrictValidation(POTTED_WILD_HEMP);
+
+        add(HEMP, createCropDrops(HEMP, NirvanaItems.HEMP, NirvanaItems.HEMP_SEEDS,
+                LootItemBlockStatePropertyCondition.hasBlockStateProperties(HEMP)
+                        .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(BlockStateProperties.AGE_7, 7))));
         addWildHempDrop();
-        addDrop(BLISS_BLOOM, blissBloomDrop());
+        add(BLISS_BLOOM, blissBloomDrop());
         // Both head variants drop the one head item, standing or wall-mounted alike.
-        addDrop(REEFER_HEAD, REEFER_HEAD_ITEM);
-        addDrop(REEFER_WALL_HEAD, REEFER_HEAD_ITEM);
-        addDrop(HEMP_CRATE);
-        addDrop(WEED_CRATE);
-        addDrop(THC);
-        addDrop(HEMP_BURLAP);
-        addDrop(WHITE_HEMP_BURLAP);
-        addDrop(LIGHT_GRAY_HEMP_BURLAP);
-        addDrop(GRAY_HEMP_BURLAP);
-        addDrop(BLACK_HEMP_BURLAP);
-        addDrop(BROWN_HEMP_BURLAP);
-        addDrop(RED_HEMP_BURLAP);
-        addDrop(ORANGE_HEMP_BURLAP);
-        addDrop(YELLOW_HEMP_BURLAP);
-        addDrop(LIME_HEMP_BURLAP);
-        addDrop(GREEN_HEMP_BURLAP);
-        addDrop(CYAN_HEMP_BURLAP);
-        addDrop(LIGHT_BLUE_HEMP_BURLAP);
-        addDrop(BLUE_HEMP_BURLAP);
-        addDrop(PURPLE_HEMP_BURLAP);
-        addDrop(MAGENTA_HEMP_BURLAP);
-        addDrop(PINK_HEMP_BURLAP);
-        addDrop(WOVEN_BURLAP);
-        addDrop(WHITE_WOVEN_BURLAP);
-        addDrop(LIGHT_GRAY_WOVEN_BURLAP);
-        addDrop(GRAY_WOVEN_BURLAP);
-        addDrop(BLACK_WOVEN_BURLAP);
-        addDrop(BROWN_WOVEN_BURLAP);
-        addDrop(RED_WOVEN_BURLAP);
-        addDrop(ORANGE_WOVEN_BURLAP);
-        addDrop(YELLOW_WOVEN_BURLAP);
-        addDrop(LIME_WOVEN_BURLAP);
-        addDrop(GREEN_WOVEN_BURLAP);
-        addDrop(CYAN_WOVEN_BURLAP);
-        addDrop(LIGHT_BLUE_WOVEN_BURLAP);
-        addDrop(BLUE_WOVEN_BURLAP);
-        addDrop(PURPLE_WOVEN_BURLAP);
-        addDrop(MAGENTA_WOVEN_BURLAP);
-        addDrop(PINK_WOVEN_BURLAP);
+        dropOther(REEFER_HEAD, REEFER_HEAD_ITEM);
+        dropOther(REEFER_WALL_HEAD, REEFER_HEAD_ITEM);
+        dropSelf(HEMP_CRATE);
+        dropSelf(WEED_CRATE);
+        dropSelf(THC);
+        dropSelf(HEMP_BURLAP);
+        dropSelf(WHITE_HEMP_BURLAP);
+        dropSelf(LIGHT_GRAY_HEMP_BURLAP);
+        dropSelf(GRAY_HEMP_BURLAP);
+        dropSelf(BLACK_HEMP_BURLAP);
+        dropSelf(BROWN_HEMP_BURLAP);
+        dropSelf(RED_HEMP_BURLAP);
+        dropSelf(ORANGE_HEMP_BURLAP);
+        dropSelf(YELLOW_HEMP_BURLAP);
+        dropSelf(LIME_HEMP_BURLAP);
+        dropSelf(GREEN_HEMP_BURLAP);
+        dropSelf(CYAN_HEMP_BURLAP);
+        dropSelf(LIGHT_BLUE_HEMP_BURLAP);
+        dropSelf(BLUE_HEMP_BURLAP);
+        dropSelf(PURPLE_HEMP_BURLAP);
+        dropSelf(MAGENTA_HEMP_BURLAP);
+        dropSelf(PINK_HEMP_BURLAP);
+        dropSelf(WOVEN_BURLAP);
+        dropSelf(WHITE_WOVEN_BURLAP);
+        dropSelf(LIGHT_GRAY_WOVEN_BURLAP);
+        dropSelf(GRAY_WOVEN_BURLAP);
+        dropSelf(BLACK_WOVEN_BURLAP);
+        dropSelf(BROWN_WOVEN_BURLAP);
+        dropSelf(RED_WOVEN_BURLAP);
+        dropSelf(ORANGE_WOVEN_BURLAP);
+        dropSelf(YELLOW_WOVEN_BURLAP);
+        dropSelf(LIME_WOVEN_BURLAP);
+        dropSelf(GREEN_WOVEN_BURLAP);
+        dropSelf(CYAN_WOVEN_BURLAP);
+        dropSelf(LIGHT_BLUE_WOVEN_BURLAP);
+        dropSelf(BLUE_WOVEN_BURLAP);
+        dropSelf(PURPLE_WOVEN_BURLAP);
+        dropSelf(MAGENTA_WOVEN_BURLAP);
+        dropSelf(PINK_WOVEN_BURLAP);
     }
     private void addWildHempDrop() {
-        var itemLookup = this.registries.getOrThrow(RegistryKeys.ITEM);
-        addDrop(WILD_HEMP, LootTable.builder().pool(LootPool.builder()
-                .with(ItemEntry.builder(NirvanaItems.WILD_HEMP)
-                        .conditionally(MatchToolLootCondition.builder(ItemPredicate.Builder.create().items(itemLookup, Items.SHEARS)))
-                        .alternatively(ItemEntry.builder(NirvanaItems.HEMP)
-                                .apply(SetCountLootFunction.builder(UniformLootNumberProvider.create(0, 2)))))));
+        var itemLookup = this.registries.lookupOrThrow(Registries.ITEM);
+        add(WILD_HEMP, LootTable.lootTable().withPool(LootPool.lootPool()
+                .add(LootItem.lootTableItem(NirvanaItems.WILD_HEMP)
+                        .when(MatchTool.toolMatches(ItemPredicate.Builder.item().of(itemLookup, Items.SHEARS)))
+                        .otherwise(LootItem.lootTableItem(NirvanaItems.HEMP)
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0, 2)))))));
     }
 
     private LootTable.Builder blissBloomDrop() {
-        return LootTable.builder().pool(LootPool.builder()
-                .conditionally(BlockStatePropertyLootCondition.builder(BLISS_BLOOM)
-                        .properties(StatePredicate.Builder.create().exactMatch(Properties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.LOWER)))
-                .with(ItemEntry.builder(BLISS_BLOOM_ITEM)));
-    }
-
-    private void addCropDrop(Block cropBlock, Item cropItem, Item seedItem) {
-        BlockStatePropertyLootCondition.Builder builder = BlockStatePropertyLootCondition.builder(cropBlock)
-                .properties(StatePredicate.Builder.create().exactMatch(Properties.AGE_7, 7));
-        addDrop(cropBlock, customCropDrop(cropBlock, cropItem, seedItem, builder));
-    }
-    public LootTable.Builder customCropDrop(Block crop, Item product, Item seeds, LootCondition.Builder condition) {
-        RegistryWrapper.Impl<Enchantment> impl = this.registries.getOrThrow(RegistryKeys.ENCHANTMENT);
-        return this.applyExplosionDecay(crop, LootTable.builder().pool(LootPool.builder().with(ItemEntry.builder(product).conditionally(condition).alternatively(ItemEntry.builder(seeds)))).pool(LootPool.builder().conditionally(condition).with(ItemEntry.builder(product).apply(ApplyBonusLootFunction.binomialWithBonusCount(impl.getOrThrow(Enchantments.FORTUNE), 0.5714286F, 2)))));
+        return LootTable.lootTable().withPool(LootPool.lootPool()
+                .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(BLISS_BLOOM)
+                        .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(BlockStateProperties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.LOWER)))
+                .add(LootItem.lootTableItem(BLISS_BLOOM_ITEM)));
     }
 }

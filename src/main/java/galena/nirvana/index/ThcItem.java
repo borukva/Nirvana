@@ -2,11 +2,12 @@ package galena.nirvana.index;
 
 import eu.pb4.polymer.core.api.item.PolymerBlockItem;
 import galena.nirvana.Nirvana;
-import net.minecraft.block.Block;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.util.Identifier;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.resources.Identifier;
+import net.minecraft.core.HolderLookup;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 /**
  * THC's block disguise uses a multi-texture (top/side/bottom) model, and PolymerBlockItem's
@@ -16,12 +17,12 @@ import xyz.nucleoid.packettweaker.PacketContext;
  */
 public class ThcItem extends PolymerBlockItem {
 
-    public ThcItem(Block block, Settings settings) {
+    public ThcItem(Block block, Properties settings) {
         super(block, settings, Items.TNT);
     }
 
     @Override
-    public Identifier getPolymerItemModel(ItemStack stack, PacketContext context) {
-        return Identifier.of(Nirvana.MOD_ID, "thc");
+    public Identifier getPolymerItemModel(ItemStack stack, PacketContext context, HolderLookup.Provider registries) {
+        return Identifier.fromNamespaceAndPath(Nirvana.MOD_ID, "thc");
     }
 }

@@ -3,23 +3,24 @@ package galena.nirvana.index;
 import galena.nirvana.Nirvana;
 import galena.nirvana.entity.NirvanaEntities;
 import eu.pb4.polymer.core.api.item.PolymerItem;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.entity.TypedEntityData;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.item.SpawnEggItem;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.util.Identifier;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.component.TypedEntityData;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.SpawnEggItem;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.Identifier;
+import net.minecraft.core.HolderLookup;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 /**
  * Real vanilla spawn-egg mechanics (right click to spawn a {@link galena.nirvana.entity.Reefer}),
  * disguised as a creeper spawn egg but carrying its own icon.
  */
 public class ReeferSpawnEgg extends SpawnEggItem implements PolymerItem {
-    public ReeferSpawnEgg(Settings settings) {
-        super(settings.component(DataComponentTypes.ENTITY_DATA, TypedEntityData.create(NirvanaEntities.REEFER, new NbtCompound())));
+    public ReeferSpawnEgg(Properties settings) {
+        super(settings.component(DataComponents.ENTITY_DATA, TypedEntityData.of(NirvanaEntities.REEFER, new CompoundTag())));
     }
 
     @Override
@@ -28,7 +29,7 @@ public class ReeferSpawnEgg extends SpawnEggItem implements PolymerItem {
     }
 
     @Override
-    public Identifier getPolymerItemModel(ItemStack itemStack, PacketContext context) {
-        return Identifier.of(Nirvana.MOD_ID, "reefer_spawn_egg");
+    public Identifier getPolymerItemModel(ItemStack itemStack, PacketContext context, HolderLookup.Provider registries) {
+        return Identifier.fromNamespaceAndPath(Nirvana.MOD_ID, "reefer_spawn_egg");
     }
 }

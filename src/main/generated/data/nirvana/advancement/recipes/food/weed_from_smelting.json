@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "nirvana:weed_from_smelting_hemp"
+        "recipe": "nirvana:weed_from_smelting"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -26,7 +26,7 @@
   ],
   "rewards": {
     "recipes": [
-      "nirvana:weed_from_smelting_hemp"
+      "nirvana:weed_from_smelting"
     ]
   }
 }

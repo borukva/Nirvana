@@ -1,17 +1,17 @@
 package galena.nirvana.index;
 
 import galena.nirvana.effects.NirvanaEffects;
-import net.minecraft.component.type.ConsumableComponent;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.item.consume.ApplyEffectsConsumeEffect;
+import net.minecraft.world.item.component.Consumable;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.item.consume_effects.ApplyStatusEffectsConsumeEffect;
 
-import static net.minecraft.component.type.ConsumableComponents.food;
+import static net.minecraft.world.item.component.Consumables.defaultFood;
 
 public class ModConsumableComponents {
-    public static final ConsumableComponent BROWNIE = food()
-            .consumeEffect(
-                    new ApplyEffectsConsumeEffect(
-                            new StatusEffectInstance(NirvanaEffects.PEACE, 20 * 40, 0)
+    public static final Consumable BROWNIE = defaultFood()
+            .onConsume(
+                    new ApplyStatusEffectsConsumeEffect(
+                            new MobEffectInstance(NirvanaEffects.PEACE, 20 * 40, 0)
                     )
             )
             .build();

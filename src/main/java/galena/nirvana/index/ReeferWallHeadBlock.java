@@ -5,24 +5,24 @@ import eu.pb4.factorytools.api.virtualentity.ItemDisplayElementUtil;
 import eu.pb4.polymer.core.api.block.PolymerBlock;
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import galena.nirvana.Nirvana;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.Properties;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.resources.Identifier;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 /**
  * The wall-mounted counterpart to {@link ReeferHeadBlock}. Vanilla splits skulls into two separate
@@ -32,14 +32,14 @@ import xyz.nucleoid.packettweaker.PacketContext;
  * wall-hugging placement come for free and identically on both sides.
  */
 public class ReeferWallHeadBlock extends Block implements PolymerBlock, FactoryBlock {
-    public ReeferWallHeadBlock(Settings settings) {
+    public ReeferWallHeadBlock(Properties settings) {
         super(settings);
-        setDefaultState(getDefaultState().with(Properties.HORIZONTAL_FACING, Direction.NORTH));
+        registerDefaultState(defaultBlockState().setValue(BlockStateProperties.HORIZONTAL_FACING, Direction.NORTH));
     }
 
     @Override
-    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        builder.add(Properties.HORIZONTAL_FACING);
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(BlockStateProperties.HORIZONTAL_FACING);
     }
 
     /**
@@ -49,10 +49,10 @@ public class ReeferWallHeadBlock extends Block implements PolymerBlock, FactoryB
      * it.
      */
     @Override
-    public @Nullable BlockState getPlacementState(ItemPlacementContext ctx) {
-        for (Direction direction : ctx.getPlacementDirections()) {
+    public @Nullable BlockState getStateForPlacement(BlockPlaceContext ctx) {
+        for (Direction direction : ctx.getNearestLookingDirections()) {
             if (direction.getAxis().isHorizontal()) {
-                return getDefaultState().with(Properties.HORIZONTAL_FACING, direction.getOpposite());
+                return defaultBlockState().setValue(BlockStateProperties.HORIZONTAL_FACING, direction.getOpposite());
             }
         }
         return null;
@@ -60,19 +60,19 @@ public class ReeferWallHeadBlock extends Block implements PolymerBlock, FactoryB
 
     @Override
     public BlockState getPolymerBlockState(BlockState state, PacketContext context) {
-        return Blocks.SKELETON_WALL_SKULL.getDefaultState()
-                .with(Properties.HORIZONTAL_FACING, state.get(Properties.HORIZONTAL_FACING));
+        return Blocks.SKELETON_WALL_SKULL.defaultBlockState()
+                .setValue(BlockStateProperties.HORIZONTAL_FACING, state.getValue(BlockStateProperties.HORIZONTAL_FACING));
     }
 
     @Override
-    public @Nullable ElementHolder createElementHolder(ServerWorld world, BlockPos pos, BlockState initialBlockState) {
-        return new Model(initialBlockState.get(Properties.HORIZONTAL_FACING));
+    public @Nullable ElementHolder createElementHolder(ServerLevel world, BlockPos pos, BlockState initialBlockState) {
+        return new Model(initialBlockState.getValue(BlockStateProperties.HORIZONTAL_FACING));
     }
 
     static class Model extends ElementHolder {
         Model(Direction facing) {
             var stack = new ItemStack(Items.PAPER);
-            stack.set(DataComponentTypes.ITEM_MODEL, Identifier.of(Nirvana.MOD_ID, "reefer_head_block"));
+            stack.set(DataComponents.ITEM_MODEL, Identifier.fromNamespaceAndPath(Nirvana.MOD_ID, "reefer_head_block"));
             var display = ItemDisplayElementUtil.createSimple(stack);
             // Vanilla wall skulls sit at mid-height and pushed back against the wall they're on,
             // rather than resting on the floor like the standing variant. Pushed the full 4px even
@@ -82,8 +82,8 @@ public class ReeferWallHeadBlock extends Block implements PolymerBlock, FactoryB
             // shows through.
             var back = facing.getOpposite();
             float pushBack = 0.25F;
-            display.setTranslation(new Vector3f(back.getOffsetX() * pushBack, -0.25F, back.getOffsetZ() * pushBack));
-            display.setLeftRotation(new Quaternionf().rotateY(-facing.getPositiveHorizontalDegrees() * MathHelper.RADIANS_PER_DEGREE));
+            display.setTranslation(new Vector3f(back.getStepX() * pushBack, -0.25F, back.getStepZ() * pushBack));
+            display.setLeftRotation(new Quaternionf().rotateY(-facing.toYRot() * Mth.DEG_TO_RAD));
             addElement(display);
         }
     }

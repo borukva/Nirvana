@@ -2,8 +2,8 @@ package galena.nirvana.world.gen;
 
 import galena.nirvana.index.NirvanaBlocks;
 import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
-import net.minecraft.item.ItemStack;
-import net.minecraft.loot.LootTables;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 
 /**
  * Mirrors the original mod's Forge-side global loot modifier: a third of the time, a sniffer's
@@ -16,7 +16,7 @@ public class ModLootInjections {
 
     public static void register() {
         LootTableEvents.MODIFY_DROPS.register((table, context, drops) -> {
-            if (table.matchesKey(LootTables.SNIFFER_DIGGING_GAMEPLAY)
+            if (table.is(BuiltInLootTables.SNIFFER_DIGGING)
                     && context.getRandom().nextFloat() < BLISS_BLOOM_CHANCE) {
                 drops.clear();
                 drops.add(new ItemStack(NirvanaBlocks.BLISS_BLOOM_ITEM));

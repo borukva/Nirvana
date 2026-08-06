@@ -1,28 +1,33 @@
 package galena.nirvana.advancement;
 
+import galena.nirvana.Nirvana;
 import galena.nirvana.effects.NirvanaEffects;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
-import net.minecraft.advancement.criterion.Criteria;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.server.level.ServerPlayer;
 
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class NirvanaAdvancements {
+    // CriteriaTriggers.register(String, T) went private - custom triggers now register straight
+    // into the registry CriteriaTriggers.bootstrap(...) itself reads from, same as any other
+    // registry entry.
     public static final PeaceDurationCriterion PEACE_DURATION_CRITERION =
-            Criteria.register("peace_duration", new PeaceDurationCriterion());
+            Registry.register(BuiltInRegistries.TRIGGER_TYPES, Nirvana.id("peace_duration"), new PeaceDurationCriterion());
 
     private static final Map<UUID, Integer> playerJumpTimers = new ConcurrentHashMap<>();
 
     public static void register() {
 
         ServerTickEvents.END_SERVER_TICK.register(server -> {
-            for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
-                UUID playerUuid = player.getUuid();
+            for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+                UUID playerUuid = player.getUUID();
 
-                if (player.hasStatusEffect(NirvanaEffects.PEACE)) {
+                if (player.hasEffect(NirvanaEffects.PEACE)) {
                     // Player has the effect, increment their timer
                     int currentTicks = playerJumpTimers.getOrDefault(playerUuid, 0) + 1;
                     playerJumpTimers.put(playerUuid, currentTicks);
@@ -42,7 +47,7 @@ public class NirvanaAdvancements {
 
         // Clean up the map when a player disconnects to prevent memory leaks
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
-            playerJumpTimers.remove(handler.getPlayer().getUuid());
+            playerJumpTimers.remove(handler.getPlayer().getUUID());
         });
     }
 }

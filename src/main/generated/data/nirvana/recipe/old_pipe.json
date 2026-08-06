@@ -1,6 +1,5 @@
 {
   "type": "minecraft:crafting_shaped",
-  "category": "misc",
   "key": {
     "B": "minecraft:resin_clump",
     "G": "minecraft:spruce_planks",
@@ -13,7 +12,6 @@
     "BG "
   ],
   "result": {
-    "count": 1,
     "id": "nirvana:old_pipe"
   }
 }

@@ -13,7 +13,7 @@
   "parent": "nirvana:smoke",
   "criteria": {
     "ten_minute_jump": {
-      "trigger": "peace_duration",
+      "trigger": "nirvana:peace_duration",
       "conditions": {
         "duration": {
           "min": 12000

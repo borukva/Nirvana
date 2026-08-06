@@ -1,6 +1,5 @@
 {
   "type": "minecraft:crafting_shaped",
-  "category": "misc",
   "key": {
     "S": "nirvana:hemp"
   },
@@ -10,7 +9,6 @@
     "SSS"
   ],
   "result": {
-    "count": 1,
     "id": "nirvana:hemp_crate"
   }
 }

@@ -1,6 +1,5 @@
 {
   "type": "minecraft:crafting_shaped",
-  "category": "misc",
   "key": {
     "G": "nirvana:hemp_cloth"
   },
@@ -9,7 +8,6 @@
     "GGG"
   ],
   "result": {
-    "count": 1,
     "id": "minecraft:leather"
   }
 }

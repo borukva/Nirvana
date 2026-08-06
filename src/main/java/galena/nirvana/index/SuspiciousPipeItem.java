@@ -1,8 +1,8 @@
 package galena.nirvana.index;
 
 import galena.nirvana.effects.SuspiciousItem;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
 
@@ -12,12 +12,12 @@ import java.util.List;
  * same as vanilla Suspicious Stew, and reads whatever effects that crafting baked into the stack.
  */
 public class SuspiciousPipeItem extends SmokingItem {
-    public SuspiciousPipeItem(Settings settings) {
-        super(settings, List.of(), "suspicious_pipe", new ItemStack(NirvanaItems.OLD_PIPE), NirvanaSounds.SMOKING, true);
+    public SuspiciousPipeItem(Properties settings) {
+        super(settings, List.of(), "suspicious_pipe", NirvanaItems.OLD_PIPE, NirvanaSounds.SMOKING, true);
     }
 
     @Override
-    protected List<StatusEffectInstance> getEffects(ItemStack stack) {
+    protected List<MobEffectInstance> getEffects(ItemStack stack) {
         return SuspiciousItem.getEffects(stack);
     }
 }

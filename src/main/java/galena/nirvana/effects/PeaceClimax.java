@@ -2,14 +2,14 @@ package galena.nirvana.effects;
 
 import galena.nirvana.entity.NirvanaEntities;
 import galena.nirvana.entity.Reefer;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.mob.CreeperEntity;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.TypeFilter;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.monster.Creeper;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.entity.EntityTypeTest;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.Comparator;
 
@@ -29,30 +29,30 @@ public class PeaceClimax {
     private static final int MAX_CONVERTED_PER_HIT = 3;
 
     public static void onIncreasedTo(LivingEntity target, int amplifier) {
-        if (!(target.getEntityWorld() instanceof ServerWorld world)) return;
+        if (!(target.level() instanceof ServerLevel world)) return;
         int hitsTaken = amplifier + 1;
 
         if (hitsTaken >= REEFER_AFTER_HITS) {
-            transformCreepers(target.getEntityPos(), world);
+            transformCreepers(target.position(), world);
         }
 
         if (hitsTaken >= HUNGER_AFTER_HITS) {
-            target.addStatusEffect(new StatusEffectInstance(StatusEffects.HUNGER, 20 * 20, 2));
+            target.addEffect(new MobEffectInstance(MobEffects.HUNGER, 20 * 20, 2));
         }
     }
 
-    private static void transformCreepers(Vec3d around, ServerWorld world) {
-        var box = Box.of(around, REEFER_CONVERSION_RANGE * 2, REEFER_CONVERSION_RANGE * 2, REEFER_CONVERSION_RANGE * 2);
-        var targets = world.getEntitiesByType(TypeFilter.instanceOf(CreeperEntity.class), box,
-                creeper -> !(creeper instanceof Reefer) && creeper.squaredDistanceTo(around) <= REEFER_CONVERSION_RANGE_SQR);
+    private static void transformCreepers(Vec3 around, ServerLevel world) {
+        var box = AABB.ofSize(around, REEFER_CONVERSION_RANGE * 2, REEFER_CONVERSION_RANGE * 2, REEFER_CONVERSION_RANGE * 2);
+        var targets = world.getEntities(EntityTypeTest.forClass(Creeper.class), box,
+                creeper -> !(creeper instanceof Reefer) && creeper.distanceToSqr(around) <= REEFER_CONVERSION_RANGE_SQR);
 
-        targets.sort(Comparator.comparingDouble(creeper -> creeper.squaredDistanceTo(around)));
+        targets.sort(Comparator.comparingDouble(creeper -> creeper.distanceToSqr(around)));
 
-        for (CreeperEntity creeper : targets.subList(0, Math.min(targets.size(), MAX_CONVERTED_PER_HIT))) {
+        for (Creeper creeper : targets.subList(0, Math.min(targets.size(), MAX_CONVERTED_PER_HIT))) {
             var replacement = new Reefer(NirvanaEntities.REEFER, world);
-            replacement.refreshPositionAndAngles(creeper.getX(), creeper.getY(), creeper.getZ(), creeper.getYaw(), creeper.getPitch());
+            replacement.snapTo(creeper.getX(), creeper.getY(), creeper.getZ(), creeper.getYRot(), creeper.getXRot());
             creeper.discard();
-            world.spawnEntity(replacement);
+            world.addFreshEntity(replacement);
         }
     }
 }

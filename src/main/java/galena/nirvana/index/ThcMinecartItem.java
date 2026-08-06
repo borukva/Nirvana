@@ -3,15 +3,16 @@ package galena.nirvana.index;
 import galena.nirvana.Nirvana;
 import galena.nirvana.entity.NirvanaEntities;
 import eu.pb4.polymer.core.api.item.PolymerItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.item.MinecartItem;
-import net.minecraft.util.Identifier;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.MinecartItem;
+import net.minecraft.resources.Identifier;
+import net.minecraft.core.HolderLookup;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 public class ThcMinecartItem extends MinecartItem implements PolymerItem {
-    public ThcMinecartItem(Settings settings) {
+    public ThcMinecartItem(Properties settings) {
         super(NirvanaEntities.THC_MINECART, settings);
     }
 
@@ -21,7 +22,7 @@ public class ThcMinecartItem extends MinecartItem implements PolymerItem {
     }
 
     @Override
-    public Identifier getPolymerItemModel(ItemStack itemStack, PacketContext context) {
-        return Identifier.of(Nirvana.MOD_ID, "thc_minecart");
+    public Identifier getPolymerItemModel(ItemStack itemStack, PacketContext context, HolderLookup.Provider registries) {
+        return Identifier.fromNamespaceAndPath(Nirvana.MOD_ID, "thc_minecart");
     }
 }

@@ -1,26 +1,27 @@
 package galena.nirvana.index;
 
-import eu.pb4.polymer.core.api.other.PolymerStatusEffect;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectCategory;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.world.ServerWorld;
+import eu.pb4.polymer.core.api.other.PolymerMobEffect;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.entity.EntityTypeTest;
+import net.minecraft.server.level.ServerLevel;
 
-public class PeacefulAuraStatusEffect extends StatusEffect implements PolymerStatusEffect {
+public class PeacefulAuraStatusEffect extends MobEffect implements PolymerMobEffect {
 
-    public PeacefulAuraStatusEffect(StatusEffectCategory category, int color) {
+    public PeacefulAuraStatusEffect(MobEffectCategory category, int color) {
         super(category, color);
     }
 
     @Override
-    public boolean applyUpdateEffect(ServerWorld world, LivingEntity entity, int amplifier) {
-        if (!(entity instanceof PlayerEntity player)) return false;
+    public boolean applyEffectTick(ServerLevel world, LivingEntity entity, int amplifier) {
+        if (!(entity instanceof Player player)) return false;
 
         double radius = 10 + amplifier * 2;
 
-        for (MobEntity mob : world.getEntitiesByClass(MobEntity.class, player.getBoundingBox().expand(radius), e -> true)) {
+        for (Mob mob : world.getEntities(EntityTypeTest.forClass(Mob.class), player.getBoundingBox().inflate(radius), e -> true)) {
             if (mob.getTarget() == player) {
                 mob.setTarget(null);
             }
@@ -30,7 +31,7 @@ public class PeacefulAuraStatusEffect extends StatusEffect implements PolymerSta
     }
 
     @Override
-    public boolean canApplyUpdateEffect(int duration, int amplifier) {
+    public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
         return true;
     }
 }

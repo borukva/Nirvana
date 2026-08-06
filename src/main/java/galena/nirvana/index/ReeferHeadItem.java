@@ -2,29 +2,30 @@ package galena.nirvana.index;
 
 import eu.pb4.polymer.core.api.item.PolymerItem;
 import galena.nirvana.Nirvana;
-import net.minecraft.block.Block;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.item.ItemUsageContext;
-import net.minecraft.item.VerticallyAttachableBlockItem;
-import net.minecraft.network.packet.s2c.play.PlaySoundS2CPacket;
-import net.minecraft.registry.Registries;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.item.StandingAndWallBlockItem;
+import net.minecraft.network.protocol.game.ClientboundSoundPacket;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.resources.Identifier;
+import net.minecraft.core.Direction;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.core.HolderLookup;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 /**
  * Places {@link ReeferHeadBlock} on floors and {@link ReeferWallHeadBlock} on walls, exactly the
  * way vanilla's own mob-head items pick between their two blocks - which is what makes the head
  * mountable on a wall at all.
  */
-public class ReeferHeadItem extends VerticallyAttachableBlockItem implements PolymerItem {
-    public ReeferHeadItem(Block standing, Block wall, Settings settings) {
+public class ReeferHeadItem extends StandingAndWallBlockItem implements PolymerItem {
+    public ReeferHeadItem(Block standing, Block wall, Properties settings) {
         super(standing, wall, Direction.DOWN, settings);
     }
 
@@ -41,8 +42,8 @@ public class ReeferHeadItem extends VerticallyAttachableBlockItem implements Pol
     }
 
     @Override
-    public Identifier getPolymerItemModel(ItemStack itemStack, PacketContext context) {
-        return Identifier.of(Nirvana.MOD_ID, "reefer_head_block");
+    public Identifier getPolymerItemModel(ItemStack itemStack, PacketContext context, HolderLookup.Provider registries) {
+        return Identifier.fromNamespaceAndPath(Nirvana.MOD_ID, "reefer_head_block");
     }
 
     /**
@@ -51,24 +52,24 @@ public class ReeferHeadItem extends VerticallyAttachableBlockItem implements Pol
      * {@link NirvanaTexturedBlockItem} does for the other custom blocks.
      */
     @Override
-    public ActionResult useOnBlock(ItemUsageContext context) {
-        ActionResult result = super.useOnBlock(context);
-        if (result != ActionResult.SUCCESS) {
+    public InteractionResult useOn(UseOnContext context) {
+        InteractionResult result = super.useOn(context);
+        if (result != InteractionResult.SUCCESS) {
             return result;
         }
 
-        if (context.getPlayer() instanceof ServerPlayerEntity serverPlayer) {
-            var soundPos = Vec3d.ofCenter(context.getBlockPos().offset(context.getSide()));
-            var group = this.getBlock().getDefaultState().getSoundGroup();
-            serverPlayer.networkHandler.sendPacket(new PlaySoundS2CPacket(
-                    Registries.SOUND_EVENT.getEntry(group.getPlaceSound()),
-                    SoundCategory.BLOCKS,
+        if (context.getPlayer() instanceof ServerPlayer serverPlayer) {
+            var soundPos = Vec3.atCenterOf(context.getClickedPos().relative(context.getClickedFace()));
+            var group = this.getBlock().defaultBlockState().getSoundType();
+            serverPlayer.connection.send(new ClientboundSoundPacket(
+                    BuiltInRegistries.SOUND_EVENT.wrapAsHolder(group.getPlaceSound()),
+                    SoundSource.BLOCKS,
                     soundPos.x, soundPos.y, soundPos.z,
                     (group.getVolume() + 1.0F) / 2.0F,
                     group.getPitch() * 0.8F,
                     serverPlayer.getRandom().nextLong()
             ));
         }
-        return ActionResult.SUCCESS_SERVER;
+        return InteractionResult.SUCCESS_SERVER;
     }
 }

@@ -1,88 +1,38 @@
 package galena.nirvana.datagen;
 
-import galena.nirvana.index.NirvanaBlocks;
-import galena.nirvana.index.NirvanaItems;
 import net.fabricmc.fabric.api.client.datagen.v1.provider.FabricModelProvider;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
-import net.minecraft.block.Block;
-import net.minecraft.client.data.*;
-import net.minecraft.util.Identifier;
+import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
+import net.minecraft.client.data.models.BlockModelGenerators;
+import net.minecraft.client.data.models.ItemModelGenerators;
 
-import static galena.nirvana.Nirvana.MOD_ID;
-
-public class ModModelProvider extends FabricModelProvider{
-    public ModModelProvider(FabricDataOutput output) {
+/**
+ * STUBBED OUT for the 26.2 migration - the whole client model-datagen surface was redesigned far
+ * beyond a rename. {@code BlockModelGenerators} lost every one of the helper methods this used
+ * (registerTintableCross/registerSouthDefaultHorizontalFacing/createLogTexturePool/
+ * registerCubeWithCustomTextures are gone; its public surface is now just createTintedLeaves/
+ * createParticleOnlyBlock/run(), fed by a constructor taking a
+ * Consumer&lt;BlockModelDefinitionGenerator&gt;/ItemModelOutput/BiConsumer&lt;Identifier,ModelInstance&gt;
+ * instead of the old mutable-builder style). Likewise {@code ItemModelGenerators} lost its
+ * {@code register(Item, ModelTemplate)} method entirely.
+ * <p>
+ * This needs real research into the new declarative model-definition system before it can be
+ * ported properly. Until then, the already-committed {@code src/main/generated/assets/...}
+ * blockstate/model JSON from the last successful generation stays in place (stale but still
+ * valid) - the mod still loads and renders using those, just won't pick up new textures/models
+ * added since without a manual JSON edit.
+ */
+public class ModModelProvider extends FabricModelProvider {
+    public ModModelProvider(FabricPackOutput output) {
         super(output);
     }
 
     @Override
-    public void generateBlockStateModels(BlockStateModelGenerator blockStateModelGenerator) {
-        blockStateModelGenerator.registerTintableCross(NirvanaBlocks.WILD_HEMP, BlockStateModelGenerator.CrossType.NOT_TINTED);
-
-        blockStateModelGenerator.registerSouthDefaultHorizontalFacing(
-                TexturedModel.TEMPLATE_GLAZED_TERRACOTTA,
-                NirvanaBlocks.HEMP_BURLAP,
-                NirvanaBlocks.WHITE_HEMP_BURLAP,
-                NirvanaBlocks.LIGHT_GRAY_HEMP_BURLAP,
-                NirvanaBlocks.GRAY_HEMP_BURLAP,
-                NirvanaBlocks.BLACK_HEMP_BURLAP,
-                NirvanaBlocks.BROWN_HEMP_BURLAP,
-                NirvanaBlocks.RED_HEMP_BURLAP,
-                NirvanaBlocks.ORANGE_HEMP_BURLAP,
-                NirvanaBlocks.YELLOW_HEMP_BURLAP,
-                NirvanaBlocks.LIME_HEMP_BURLAP,
-                NirvanaBlocks.GREEN_HEMP_BURLAP,
-                NirvanaBlocks.CYAN_HEMP_BURLAP,
-                NirvanaBlocks.LIGHT_BLUE_HEMP_BURLAP,
-                NirvanaBlocks.BLUE_HEMP_BURLAP,
-                NirvanaBlocks.PURPLE_HEMP_BURLAP,
-                NirvanaBlocks.MAGENTA_HEMP_BURLAP,
-                NirvanaBlocks.PINK_HEMP_BURLAP);
-
-        blockStateModelGenerator.createLogTexturePool(NirvanaBlocks.WOVEN_BURLAP).log(NirvanaBlocks.WOVEN_BURLAP);
-        blockStateModelGenerator.createLogTexturePool(NirvanaBlocks.WHITE_WOVEN_BURLAP).log(NirvanaBlocks.WHITE_WOVEN_BURLAP);
-        blockStateModelGenerator.createLogTexturePool(NirvanaBlocks.LIGHT_GRAY_WOVEN_BURLAP).log(NirvanaBlocks.LIGHT_GRAY_WOVEN_BURLAP);
-        blockStateModelGenerator.createLogTexturePool(NirvanaBlocks.GRAY_WOVEN_BURLAP).log(NirvanaBlocks.GRAY_WOVEN_BURLAP);
-        blockStateModelGenerator.createLogTexturePool(NirvanaBlocks.BLACK_WOVEN_BURLAP).log(NirvanaBlocks.BLACK_WOVEN_BURLAP);
-        blockStateModelGenerator.createLogTexturePool(NirvanaBlocks.BROWN_WOVEN_BURLAP).log(NirvanaBlocks.BROWN_WOVEN_BURLAP);
-        blockStateModelGenerator.createLogTexturePool(NirvanaBlocks.RED_WOVEN_BURLAP).log(NirvanaBlocks.RED_WOVEN_BURLAP);
-        blockStateModelGenerator.createLogTexturePool(NirvanaBlocks.ORANGE_WOVEN_BURLAP).log(NirvanaBlocks.ORANGE_WOVEN_BURLAP);
-        blockStateModelGenerator.createLogTexturePool(NirvanaBlocks.YELLOW_WOVEN_BURLAP).log(NirvanaBlocks.YELLOW_WOVEN_BURLAP);
-        blockStateModelGenerator.createLogTexturePool(NirvanaBlocks.LIME_WOVEN_BURLAP).log(NirvanaBlocks.LIME_WOVEN_BURLAP);
-        blockStateModelGenerator.createLogTexturePool(NirvanaBlocks.GREEN_WOVEN_BURLAP).log(NirvanaBlocks.GREEN_WOVEN_BURLAP);
-        blockStateModelGenerator.createLogTexturePool(NirvanaBlocks.CYAN_WOVEN_BURLAP).log(NirvanaBlocks.CYAN_WOVEN_BURLAP);
-        blockStateModelGenerator.createLogTexturePool(NirvanaBlocks.LIGHT_BLUE_WOVEN_BURLAP).log(NirvanaBlocks.LIGHT_BLUE_WOVEN_BURLAP);
-        blockStateModelGenerator.createLogTexturePool(NirvanaBlocks.BLUE_WOVEN_BURLAP).log(NirvanaBlocks.BLUE_WOVEN_BURLAP);
-        blockStateModelGenerator.createLogTexturePool(NirvanaBlocks.PURPLE_WOVEN_BURLAP).log(NirvanaBlocks.PURPLE_WOVEN_BURLAP);
-        blockStateModelGenerator.createLogTexturePool(NirvanaBlocks.MAGENTA_WOVEN_BURLAP).log(NirvanaBlocks.MAGENTA_WOVEN_BURLAP);
-        blockStateModelGenerator.createLogTexturePool(NirvanaBlocks.PINK_WOVEN_BURLAP).log(NirvanaBlocks.PINK_WOVEN_BURLAP);
-
-        generateCrate(blockStateModelGenerator, NirvanaBlocks.HEMP_CRATE, "hemp_crate");
-        generateCrate(blockStateModelGenerator, NirvanaBlocks.WEED_CRATE, "weed_crate");
+    public void generateBlockStateModels(BlockModelGenerators blockStateModelGenerator) {
+        // TODO: port to the new declarative model-definition API (see class javadoc).
     }
 
     @Override
-    public void generateItemModels(ItemModelGenerator itemModelGenerator) {
-        itemModelGenerator.register(NirvanaItems.HEMP_SEEDS, Models.GENERATED);
-        itemModelGenerator.register(NirvanaItems.HEMP, Models.GENERATED);
-        itemModelGenerator.register(NirvanaItems.HEMP_CLOTH, Models.GENERATED);
-        itemModelGenerator.register(NirvanaItems.WEED, Models.GENERATED);
-        itemModelGenerator.register(NirvanaItems.WEED_BROWNIE, Models.GENERATED);
-        itemModelGenerator.register(NirvanaItems.OLD_PIPE, Models.GENERATED);
-        itemModelGenerator.register(NirvanaItems.MUSIC_DISC_JAM, Models.GENERATED);
-    }
-    private static void generateCrate(BlockStateModelGenerator generator, Block generatedBlock, String path) {
-        generator.registerCubeWithCustomTextures(
-                generatedBlock,
-                generatedBlock,
-                (block, otherTextureSource) -> new TextureMap()
-                        .put(TextureKey.DOWN, Identifier.of(MOD_ID, "block/" + path + "_bottom"))
-                        .put(TextureKey.UP, Identifier.of(MOD_ID, "block/" + path + "_top"))
-                        .put(TextureKey.NORTH, Identifier.of(MOD_ID, "block/" + path + "_front"))
-                        .put(TextureKey.EAST, Identifier.of(MOD_ID, "block/" + path + "_side"))
-                        .put(TextureKey.SOUTH, Identifier.of(MOD_ID, "block/" + path + "_back"))
-                        .put(TextureKey.WEST, Identifier.of(MOD_ID, "block/" + path + "_side"))
-                        .put(TextureKey.PARTICLE, Identifier.of(MOD_ID, "block/" + path + "_top"))
-        );
+    public void generateItemModels(ItemModelGenerators itemModelGenerator) {
+        // TODO: port to the new declarative model-definition API (see class javadoc).
     }
 }

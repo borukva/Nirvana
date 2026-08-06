@@ -1,5 +1,11 @@
 plugins {
-    id("fabric-loom") version "1.16.3"
+    // 26.2 has no official mapping file to fetch (its jar already ships with real names -
+    // nothing to deobfuscate), so no mappings(...) dependency is declared below - Loom
+    // auto-detects the already-official jar and needs nothing further, PROVIDED the plugin is
+    // applied by its full id. The short alias "fabric-loom" resolves to a different plugin
+    // marker that does NOT auto-detect this and fails with "Configuration 'mappings' has no
+    // dependencies" - confirmed by isolated testing against a known-working MC 26.1 project.
+    id("net.fabricmc.fabric-loom") version "1.15.5"
     id("maven-publish")
 }
 
@@ -22,20 +28,28 @@ fabricApi {
 
 dependencies {
     minecraft("com.mojang:minecraft:${property("minecraft_version")}")
-    mappings("net.fabricmc:yarn:${property("yarn_mappings")}:v2")
-    modImplementation("net.fabricmc:fabric-loader:${property("loader_version")}")
+    // Minecraft 26.x ships with official (Mojang) names baked in already - there is nothing left
+    // to deobfuscate, and unlike 1.21.x there is no separate mapping file Mojang even publishes
+    // for it (confirmed against the version manifest: only `client`/`server` downloads, no
+    // `client_mappings`/`server_mappings`). Loom auto-detects this and needs no mappings(...)
+    // dependency declared at all.
+    implementation("net.fabricmc:fabric-loader:${property("loader_version")}")
 
-    modImplementation("net.fabricmc.fabric-api:fabric-api:${property("fabric_version")}")
+    implementation("net.fabricmc.fabric-api:fabric-api:${property("fabric_version")}")
+    // The umbrella fabric-api artifact's POM lists this as a compile dependency, but Loom
+    // doesn't seem to resolve it onto the main compileClasspath transitively for 26.2 - our own
+    // datagen/ package (registered via the fabric-datagen entrypoint) needs it directly.
+    implementation("net.fabricmc.fabric-api:fabric-data-generation-api-v1:25.5.0+aed122aa9e")
 
     val polymerVersion = property("polymer_version")
-    modImplementation("eu.pb4:polymer-core:[$polymerVersion]")
-    modImplementation("eu.pb4:polymer-blocks:[$polymerVersion]")
-    modImplementation("eu.pb4:polymer-resource-pack:[$polymerVersion]")
-    modImplementation("eu.pb4:polymer-resource-pack-extras:[$polymerVersion]")
-    modImplementation("eu.pb4:polymer-virtual-entity:[$polymerVersion]")
-    modImplementation("eu.pb4:polymer-autohost:$polymerVersion")
+    implementation("eu.pb4:polymer-core:[$polymerVersion]")
+    implementation("eu.pb4:polymer-blocks:[$polymerVersion]")
+    implementation("eu.pb4:polymer-resource-pack:[$polymerVersion]")
+    implementation("eu.pb4:polymer-resource-pack-extras:[$polymerVersion]")
+    implementation("eu.pb4:polymer-virtual-entity:[$polymerVersion]")
+    implementation("eu.pb4:polymer-autohost:$polymerVersion")
 
-    modImplementation(include("eu.pb4:factorytools:[${property("factorytools_version")}]")!!)
+    implementation(include("eu.pb4:factorytools:[${property("factorytools_version")}]")!!)
 }
 
 tasks.processResources {
@@ -47,13 +61,15 @@ tasks.processResources {
 }
 
 tasks.withType<JavaCompile>().configureEach {
-    options.release.set(21)
+    options.release.set(25)
+    options.compilerArgs.add("-Xmaxerrs")
+    options.compilerArgs.add("2000")
 }
 
 java {
     withSourcesJar()
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
 }
 
 tasks.jar {

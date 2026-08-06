@@ -9,8 +9,8 @@ import galena.nirvana.world.gen.ModConfiguredFeatures;
 import galena.nirvana.world.gen.ModPlacedFeatures;
 import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
-import net.minecraft.registry.RegistryBuilder;
-import net.minecraft.registry.RegistryKeys;
+import net.minecraft.core.RegistrySetBuilder;
+import net.minecraft.core.registries.Registries;
 
 public class NirvanaDataGenerator implements DataGeneratorEntrypoint {
 	@Override
@@ -25,8 +25,8 @@ public class NirvanaDataGenerator implements DataGeneratorEntrypoint {
     }
 
     @Override
-    public void buildRegistry(RegistryBuilder builder) {
-        builder.addRegistry(RegistryKeys.CONFIGURED_FEATURE, ModConfiguredFeatures::bootstrap);
-        builder.addRegistry(RegistryKeys.PLACED_FEATURE, ModPlacedFeatures::bootstrap);
+    public void buildRegistry(RegistrySetBuilder builder) {
+        builder.add(Registries.CONFIGURED_FEATURE, ModConfiguredFeatures::bootstrap);
+        builder.add(Registries.PLACED_FEATURE, ModPlacedFeatures::bootstrap);
     }
 }

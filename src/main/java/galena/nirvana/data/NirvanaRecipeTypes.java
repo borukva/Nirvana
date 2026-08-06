@@ -1,23 +1,23 @@
 package galena.nirvana.data;
 
 import galena.nirvana.Nirvana;
-import net.minecraft.recipe.RecipeSerializer;
-import net.minecraft.recipe.SpecialCraftingRecipe;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.CustomRecipe;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Registry;
 
 public class NirvanaRecipeTypes {
 
-    public static final RecipeSerializer<? extends SpecialCraftingRecipe> SUSPICIOUS_PIPE_RECIPE_SERIALIZER = Registry.register(
-            Registries.RECIPE_SERIALIZER,
+    public static final RecipeSerializer<? extends CustomRecipe> SUSPICIOUS_PIPE_RECIPE_SERIALIZER = Registry.register(
+            BuiltInRegistries.RECIPE_SERIALIZER,
             Nirvana.id("suspicious_crafting"),
-            new SpecialCraftingRecipe.SpecialRecipeSerializer<>(SuspiciousPipeCraftingRecipe::new)
+            SuspiciousPipeCraftingRecipe.SERIALIZER
             );
 
-    public static final RecipeSerializer<? extends SpecialCraftingRecipe> SUSPICIOUS_SALVE_RECIPE_SERIALIZER = Registry.register(
-            Registries.RECIPE_SERIALIZER,
+    public static final RecipeSerializer<? extends CustomRecipe> SUSPICIOUS_SALVE_RECIPE_SERIALIZER = Registry.register(
+            BuiltInRegistries.RECIPE_SERIALIZER,
             Nirvana.id("suspicious_salve_crafting"),
-            new SpecialCraftingRecipe.SpecialRecipeSerializer<>(SuspiciousSalveCraftingRecipe::new)
+            SuspiciousSalveCraftingRecipe.SERIALIZER
             );
 
     public static void register() {

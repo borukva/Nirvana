@@ -9,23 +9,25 @@ import eu.pb4.polymer.blocks.api.PolymerBlockResourceUtils;
 import eu.pb4.polymer.blocks.api.PolymerTexturedBlock;
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.TallPlantBlock;
-import net.minecraft.block.enums.DoubleBlockHalf;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.DoublePlantBlock;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import eu.pb4.factorytools.api.util.LazyItemStack;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.resources.Identifier;
+import net.minecraft.core.BlockPos;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
-public class BlissBloom extends TallPlantBlock implements PolymerTexturedBlock, FactoryBlock {
-    private final BlockState model = PolymerBlockResourceUtils.requestEmpty(BlockModelType.PLANT_BLOCK);
-    private static final ItemStack DISPLAY_MODEL = ItemDisplayElementUtil.getModel(Identifier.of(Nirvana.MOD_ID, "block/bliss_bloom"));
+public class BlissBloom extends DoublePlantBlock implements PolymerTexturedBlock, FactoryBlock {
+    private final BlockState model = PolymerBlockResourceUtils.requestEmpty(BlockModelType.PLANT);
+    // Deliberately lazy: resolving a real ItemStack this early (static init, at mod-init time)
+    // runs before components are bound and crashes with "Components not bound yet".
+    private static final LazyItemStack DISPLAY_MODEL = ItemDisplayElementUtil.getModel(Identifier.fromNamespaceAndPath(Nirvana.MOD_ID, "block/bliss_bloom"));
 
-    public BlissBloom(Settings settings) {
+    public BlissBloom(Properties settings) {
         super(settings);
     }
 
@@ -36,12 +38,12 @@ public class BlissBloom extends TallPlantBlock implements PolymerTexturedBlock, 
 
     @Override
     public BlockState getPolymerBreakEventBlockState(BlockState state, PacketContext context) {
-        return Blocks.ROSE_BUSH.getDefaultState();
+        return Blocks.ROSE_BUSH.defaultBlockState();
     }
 
     @Override
-    public @Nullable ElementHolder createElementHolder(ServerWorld world, BlockPos pos, BlockState initialBlockState) {
-        if (initialBlockState.get(HALF) != DoubleBlockHalf.LOWER) return null;
+    public @Nullable ElementHolder createElementHolder(ServerLevel world, BlockPos pos, BlockState initialBlockState) {
+        if (initialBlockState.getValue(HALF) != DoubleBlockHalf.LOWER) return null;
         return new Model();
     }
 

@@ -6,12 +6,12 @@ import eu.pb4.polymer.virtualentity.api.attachment.ChunkAttachment;
 import eu.pb4.polymer.virtualentity.api.attachment.HolderAttachment;
 import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
 import galena.nirvana.Nirvana;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -52,13 +52,13 @@ public class SmokeRing extends ElementHolder {
 
     private final ItemDisplayElement ring;
     private HolderAttachment attachment;
-    private Vec3d velocity;
-    private Vec3d offset = Vec3d.ZERO;
+    private Vec3 velocity;
+    private Vec3 offset = Vec3.ZERO;
     private int age;
     private int frame = -1;
     private int fadeStep = -1;
 
-    public static void spawn(ServerWorld world, Vec3d origin, Vec3d direction) {
+    public static void spawn(ServerLevel world, Vec3 origin, Vec3 direction) {
         var holder = new SmokeRing(direction);
         holder.attachment = ChunkAttachment.ofTicking(holder, world, origin);
     }
@@ -73,13 +73,13 @@ public class SmokeRing extends ElementHolder {
 
     private static ItemStack modelStack(String name) {
         var stack = new ItemStack(Items.PAPER);
-        stack.set(DataComponentTypes.ITEM_MODEL, Identifier.of(Nirvana.MOD_ID, name));
+        stack.set(DataComponents.ITEM_MODEL, Identifier.fromNamespaceAndPath(Nirvana.MOD_ID, name));
         return stack;
     }
 
-    private SmokeRing(Vec3d direction) {
+    private SmokeRing(Vec3 direction) {
         var facing = direction.normalize();
-        this.velocity = facing.multiply(INITIAL_SPEED);
+        this.velocity = facing.scale(INITIAL_SPEED);
 
         this.ring = ItemDisplayElementUtil.createSimple(frameStack(0));
         this.ring.setInterpolationDuration(1);
@@ -104,7 +104,7 @@ public class SmokeRing extends ElementHolder {
         }
 
         this.offset = this.offset.add(this.velocity);
-        this.velocity = this.velocity.multiply(FRICTION);
+        this.velocity = this.velocity.scale(FRICTION);
         this.ring.setTranslation(new Vector3f((float) this.offset.x, (float) this.offset.y, (float) this.offset.z));
 
         int remaining = LIFETIME_TICKS - this.age;

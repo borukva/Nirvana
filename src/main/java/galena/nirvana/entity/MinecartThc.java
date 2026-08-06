@@ -4,54 +4,55 @@ import galena.nirvana.index.NirvanaBlocks;
 import galena.nirvana.index.NirvanaItems;
 import galena.nirvana.index.ThcBlock;
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.vehicle.TntMinecartEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.vehicle.minecart.MinecartTNT;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 import java.util.Optional;
 
-public class MinecartThc extends TntMinecartEntity implements PolymerEntity {
+public class MinecartThc extends MinecartTNT implements PolymerEntity {
 
-    public MinecartThc(EntityType<? extends TntMinecartEntity> type, World world) {
+    public MinecartThc(EntityType<? extends MinecartTNT> type, Level world) {
         super(type, world);
-        // The client is disguised as a genuine vanilla TntMinecartEntity, so it renders whatever
-        // CUSTOM_BLOCK_STATE carries and otherwise falls back to *its own* getDefaultContainedBlock()
+        // The client is disguised as a genuine vanilla MinecartTNT, so it renders whatever
+        // CUSTOM_DISPLAY_BLOCK carries and otherwise falls back to *its own* getDefaultDisplayBlockState()
         // (hardcoded to Blocks.TNT) - our override below never runs on the client. Pushing the real,
         // disguised THC state through this tracked field is what actually makes it show up in-world.
-        setCustomBlockState(Optional.of(((ThcBlock) NirvanaBlocks.THC).getDisguisedState()));
+        setCustomDisplayBlockState(Optional.of(((ThcBlock) NirvanaBlocks.THC).getDisguisedState()));
     }
 
     @Override
     public EntityType<?> getPolymerEntityType(PacketContext context) {
-        return EntityType.TNT_MINECART;
+        return EntityTypes.TNT_MINECART;
     }
 
     @Override
-    public BlockState getDefaultContainedBlock() {
-        return NirvanaBlocks.THC.getDefaultState();
+    public BlockState getDefaultDisplayBlockState() {
+        return NirvanaBlocks.THC.defaultBlockState();
     }
 
     @Override
-    protected Item asItem() {
+    protected Item getDropItem() {
         return NirvanaItems.THC_MINECART;
     }
 
     @Override
-    public ItemStack getPickBlockStack() {
+    public ItemStack getPickResult() {
         return new ItemStack(NirvanaItems.THC_MINECART);
     }
 
     @Override
     protected void explode(DamageSource source, double power) {
-        if (getEntityWorld() instanceof ServerWorld serverWorld) {
-            ThcCloud.spawnCloud(serverWorld, getEntityPos(), 1.5F, 60);
+        if (level() instanceof ServerLevel serverWorld) {
+            ThcCloud.spawnCloud(serverWorld, position(), 1.5F, 60);
         }
         discard();
     }

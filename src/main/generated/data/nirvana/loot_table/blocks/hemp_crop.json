@@ -7,7 +7,6 @@
   ],
   "pools": [
     {
-      "bonus_rolls": 0.0,
       "entries": [
         {
           "type": "minecraft:alternatives",
@@ -35,7 +34,6 @@
       "rolls": 1.0
     },
     {
-      "bonus_rolls": 0.0,
       "conditions": [
         {
           "block": "nirvana:hemp_crop",
@@ -54,12 +52,12 @@
               "formula": "minecraft:binomial_with_bonus_count",
               "function": "minecraft:apply_bonus",
               "parameters": {
-                "extra": 2,
+                "extra": 3,
                 "probability": 0.5714286
               }
             }
           ],
-          "name": "nirvana:hemp"
+          "name": "nirvana:hemp_seeds"
         }
       ],
       "rolls": 1.0

@@ -8,21 +8,21 @@ import eu.pb4.polymer.blocks.api.BlockModelType;
 import eu.pb4.polymer.blocks.api.PolymerBlockModel;
 import eu.pb4.polymer.blocks.api.PolymerBlockResourceUtils;
 import eu.pb4.polymer.blocks.api.PolymerTexturedBlock;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.TntBlock;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.GameRules;
-import net.minecraft.world.World;
-import net.minecraft.world.explosion.Explosion;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.TntBlock;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.resources.Identifier;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.gamerules.GameRules;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.Explosion;
 import org.jetbrains.annotations.Nullable;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 /**
  * TNT's own shape/behavior class-wise, but with its own top/side/bottom texture set instead of
@@ -31,10 +31,10 @@ import xyz.nucleoid.packettweaker.PacketContext;
 public class ThcBlock extends TntBlock implements PolymerTexturedBlock, ICustomTntBlock {
     private final BlockState model = PolymerBlockResourceUtils.requestBlock(
             BlockModelType.FULL_BLOCK,
-            PolymerBlockModel.of(Identifier.of(Nirvana.MOD_ID, "block/thc"))
+            PolymerBlockModel.of(Identifier.fromNamespaceAndPath(Nirvana.MOD_ID, "block/thc"))
     );
 
-    public ThcBlock(Settings settings) {
+    public ThcBlock(Properties settings) {
         super(settings);
     }
 
@@ -54,33 +54,34 @@ public class ThcBlock extends TntBlock implements PolymerTexturedBlock, ICustomT
     }
 
     @Override
-    public void onCaughtFire(BlockState state, World world, BlockPos pos, @Nullable Direction face, @Nullable LivingEntity igniter) {
-        if (!(world instanceof ServerWorld serverWorld)) return;
+    public void onCaughtFire(BlockState state, Level world, BlockPos pos, @Nullable Direction face, @Nullable LivingEntity igniter) {
+        if (!(world instanceof ServerLevel serverWorld)) return;
 
         var primed = new PrimedThc(world, pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, igniter);
-        serverWorld.spawnEntity(primed);
-        world.playSound(null, primed.getX(), primed.getY(), primed.getZ(), SoundEvents.ENTITY_TNT_PRIMED, SoundCategory.BLOCKS, 1.0F, 1.0F);
+        serverWorld.addFreshEntity(primed);
+        world.playSound(null, primed.getX(), primed.getY(), primed.getZ(), SoundEvents.TNT_PRIMED, SoundSource.BLOCKS, 1.0F, 1.0F);
         // TntBlockMixin cancels vanilla TntBlock#primeTnt for ICustomTntBlock blocks, which also
         // skips vanilla's block-to-air removal that normally follows a successful primeTnt() call.
-        world.setBlockState(pos, Blocks.AIR.getDefaultState(), 11);
+        world.setBlock(pos, Blocks.AIR.defaultBlockState(), 11);
     }
 
     /**
      * A real nearby explosion (a creeper, real TNT, anything) destroying this block would
      * otherwise fall through to vanilla's own {@code TntBlock#onDestroyedByExplosion}, which
-     * spawns a genuine vanilla TntEntity - turning THC into a real destructive explosion the
+     * spawns a genuine vanilla PrimedTnt - turning THC into a real destructive explosion the
      * instant something else blows up next to it. Spawns {@link PrimedThc} instead, with the same
      * short randomized fuse vanilla itself uses here (notably shorter than a freshly-lit one -
      * see {@code TntBlock#onDestroyedByExplosion}), so chain reactions started by outside sources
      * still race along the same way a THC-to-THC chain already does.
      */
     @Override
-    public void onDestroyedByExplosion(ServerWorld world, BlockPos pos, Explosion explosion) {
-        if (!world.getGameRules().getBoolean(GameRules.TNT_EXPLODES)) return;
+    public void wasExploded(ServerLevel world, BlockPos pos, Explosion explosion) {
+        if (!world.getGameRules().get(GameRules.TNT_EXPLODES)) return;
 
-        var primed = new PrimedThc(world, pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, explosion.getCausingEntity());
+        var igniter = explosion.getDirectSourceEntity() instanceof LivingEntity living ? living : null;
+        var primed = new PrimedThc(world, pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, igniter);
         int defaultFuse = primed.getFuse();
         primed.setFuse(world.getRandom().nextInt(defaultFuse / 4) + defaultFuse / 8);
-        world.spawnEntity(primed);
+        world.addFreshEntity(primed);
     }
 }
