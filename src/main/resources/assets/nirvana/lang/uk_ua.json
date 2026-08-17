@@ -103,6 +103,15 @@
   "item.nirvana.potion_bong.effect.oozing": "Бонг слизькости",
   "item.nirvana.potion_bong.effect.infested": "Бонг зараження",
 
+  "item.nirvana.potion_bong.effect.berserking": "Бонг берсерка",
+  "item.nirvana.potion_bong.effect.berserking_strong": "Бонг берсерка",
+  "item.nirvana.potion_bong.effect.berserking_long": "Бонг берсерка",
+  "item.nirvana.potion_bong.effect.reaching": "Бонг досяжности",
+  "item.nirvana.potion_bong.effect.enderscape_void_corruption": "Бонг скверни пустоти",
+  "item.nirvana.potion_bong.effect.enderscape_void_resistance": "Бонг опору пустоті",
+  "item.nirvana.potion_bong.effect.enderscape_void_purification": "Бонг очищення пустоти",
+  "item.nirvana.potion_bong.effect.enderscape_low_gravity": "Бонг низької гравітації",
+
 
 
   "item.nirvana.music_disc_jam": "Платівка",

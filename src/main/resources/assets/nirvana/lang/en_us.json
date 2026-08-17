@@ -102,6 +102,15 @@
   "item.nirvana.potion_bong.effect.oozing": "Bong of Oozing",
   "item.nirvana.potion_bong.effect.infested": "Bong of Infestation",
 
+  "item.nirvana.potion_bong.effect.berserking": "Bong of the Berserker",
+  "item.nirvana.potion_bong.effect.berserking_strong": "Bong of the Berserker",
+  "item.nirvana.potion_bong.effect.berserking_long": "Bong of the Berserker",
+  "item.nirvana.potion_bong.effect.reaching": "Bong of Reaching",
+  "item.nirvana.potion_bong.effect.enderscape_void_corruption": "Bong of Void Corruption",
+  "item.nirvana.potion_bong.effect.enderscape_void_resistance": "Bong of Void Resistance",
+  "item.nirvana.potion_bong.effect.enderscape_void_purification": "Bong of Void Purification",
+  "item.nirvana.potion_bong.effect.enderscape_low_gravity": "Bong of Low Gravity",
+
 
   "item.nirvana.music_disc_jam": "Music Disc",
   "item.nirvana.reefer_spawn_egg": "Reefer Spawn Egg",
