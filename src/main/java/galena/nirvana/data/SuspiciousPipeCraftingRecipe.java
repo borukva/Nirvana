@@ -35,7 +35,7 @@ public class SuspiciousPipeCraftingRecipe extends SuspiciousCraftingRecipe {
 
     @Override
     protected int getRequiredWeed() {
-        return 1;
+        return 2;
     }
 
     @Override

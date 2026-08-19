@@ -68,7 +68,7 @@ public class NirvanaItems {
 
     public static final Item BONG = registerItem(
             "bong",
-            settings -> new BongItem(settings.durability(4).component(DataComponents.CONSUMABLE, BOW_USE_ANIMATION), List.of(
+            settings -> new BongItem(settings.durability(6).component(DataComponents.CONSUMABLE, BOW_USE_ANIMATION), List.of(
                     new MobEffectInstance(NirvanaEffects.PEACE, 600, 0)
             ), Items.GLASS_BOTTLE)
     );
@@ -90,14 +90,14 @@ public class NirvanaItems {
 
     public static final Item STUFFED_PIPE = registerItem(
             "stuffed_pipe",
-            settings -> new SmokingItem(settings.durability(6).rarity(Rarity.UNCOMMON), List.of(
+            settings -> new SmokingItem(settings.durability(12).rarity(Rarity.UNCOMMON), List.of(
                     new MobEffectInstance(NirvanaEffects.PEACE, 600, 0)
             ), "stuffed_pipe", NirvanaItems.OLD_PIPE, NirvanaSounds.SMOKING, true)
     );
 
     public static final Item SUSPICIOUS_PIPE = registerItem(
             "suspicious_pipe",
-            settings -> new SuspiciousPipeItem(settings.durability(6).rarity(Rarity.UNCOMMON))
+            settings -> new SuspiciousPipeItem(settings.durability(12).rarity(Rarity.UNCOMMON))
     );
 
     public static final Item HERBAL_SALVE = registerItem(
