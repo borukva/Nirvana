@@ -11,7 +11,7 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.CustomRecipe;
 
 /**
- * 1 old_pipe + 1 weed + 6 of a single flower type -> suspicious_pipe. Stateless (a singleton,
+ * 1 old_pipe + 2 weed + 3 of a single flower type -> suspicious_pipe. Stateless (a singleton,
  * same as vanilla's own {@code CustomRecipe} subclasses like {@code RepairItemRecipe}) - none of
  * its behaviour actually varies per-instance, only the recipe book category is fixed.
  */
@@ -30,7 +30,7 @@ public class SuspiciousPipeCraftingRecipe extends SuspiciousCraftingRecipe {
 
     @Override
     protected int getRequiredFlowers() {
-        return 6;
+        return 3;
     }
 
     @Override
@@ -40,7 +40,7 @@ public class SuspiciousPipeCraftingRecipe extends SuspiciousCraftingRecipe {
 
     @Override
     protected int getDurationFactor() {
-        return 4;
+        return 2;
     }
 
     @Override
