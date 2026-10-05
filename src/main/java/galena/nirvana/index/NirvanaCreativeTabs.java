@@ -1,6 +1,7 @@
 package galena.nirvana.index;
 
 import eu.pb4.polymer.core.api.item.PolymerCreativeModeTabUtils;
+import galena.nirvana.data.SuspiciousCraftingRecipe;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -97,12 +98,7 @@ public final class NirvanaCreativeTabs {
                 .forEach(flower -> {
                     var ingredient = SuspiciousEffectHolder.tryGet(flower);
                     if (ingredient == null) return;
-                    var effects = new SuspiciousStewEffects(ingredient.getSuspiciousEffects().effects().stream()
-                            .map(effect -> new SuspiciousStewEffects.Entry(effect.effect(),
-                                    item == NirvanaItems.SUSPICIOUS_PIPE
-                                            ? Math.max(20, effect.duration() * durationFactor)
-                                            : effect.duration() * durationFactor))
-                            .toList());
+                    var effects = SuspiciousCraftingRecipe.createEffects(item, ingredient, durationFactor);
                     if (effects.effects().isEmpty() || !seen.add(effects)) return;
                     var stack = new ItemStack(item);
                     stack.set(DataComponents.SUSPICIOUS_STEW_EFFECTS, effects);

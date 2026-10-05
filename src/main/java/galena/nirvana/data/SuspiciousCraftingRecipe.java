@@ -31,6 +31,17 @@ public abstract class SuspiciousCraftingRecipe extends CustomRecipe {
     protected abstract int getDurationFactor();
     protected abstract Item getResult();
 
+    /** Shared by crafting and creative variants so recipe viewers see identical components. */
+    public static SuspiciousStewEffects createEffects(Item result, SuspiciousEffectHolder ingredient,
+                                                     int durationFactor) {
+        return new SuspiciousStewEffects(ingredient.getSuspiciousEffects().effects().stream()
+                .map(effect -> new SuspiciousStewEffects.Entry(effect.effect(),
+                        result == NirvanaItems.SUSPICIOUS_PIPE
+                                ? Math.max(20, effect.duration() * durationFactor)
+                                : effect.duration() * durationFactor))
+                .toList());
+    }
+
     /** A real crafting grid for recipe viewers; quantities stay owned by the recipe. */
     public CraftingInput createDisplayInput(Item flower) {
         var stacks = new ArrayList<ItemStack>();
@@ -104,13 +115,7 @@ public abstract class SuspiciousCraftingRecipe extends CustomRecipe {
         }
 
         if (effectIngredient != null) {
-            int durationFactor = getDurationFactor();
-            SuspiciousStewEffects effects = new SuspiciousStewEffects(
-                    effectIngredient.getSuspiciousEffects().effects()
-                            .stream()
-                            .map(it -> new SuspiciousStewEffects.Entry(it.effect(), it.duration() * durationFactor))
-                            .toList()
-            );
+            var effects = createEffects(getResult(), effectIngredient, getDurationFactor());
             result.set(DataComponents.SUSPICIOUS_STEW_EFFECTS, effects);
         }
 
