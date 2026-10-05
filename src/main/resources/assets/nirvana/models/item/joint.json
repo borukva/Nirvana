@@ -7,8 +7,15 @@
 	},
 	"display": {
 		"firstperson_righthand": {
-			"rotation": [156.39, 62.7, -176.72],
-			"translation": [4.75, 5, -6]
+			"rotation": [-70, 105, -135],
+			"translation": [3, 3, -6]
+		},
+		"firstperson_lefthand": {
+			"rotation": [-70, -85, 135],
+			"translation": [3, 3, -6]
+		},
+		"fixed": {
+			"rotation": [0, 180, 0]
 		}
 	}
 }

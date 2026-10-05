@@ -1,0 +1,53 @@
+{
+	"format_version": "26.3",
+	"credit": "Made with Blockbench",
+	"parent": "nirvana:item/joint_equipped",
+	"textures": {
+		"ember": "nirvana:item/joint_ember"
+	},
+	"elements": [
+		{
+			"from": [7, 6, 4],
+			"to": [9, 8, 12],
+			"faces": {
+				"north": {"uv": [1, 0, 1.5, 0.5], "rotation": 180, "texture": "#texture"},
+				"east": {"uv": [0, 0.5, 0.5, 2.5], "rotation": 270, "texture": "#texture"},
+				"south": {"uv": [0.5, 0, 1, 0.5], "rotation": 180, "texture": "#texture"},
+				"west": {"uv": [1, 0.5, 1.5, 2.5], "rotation": 90, "texture": "#texture"},
+				"up": {"uv": [1, 0.5, 0.5, 2.5], "rotation": 180, "texture": "#texture"},
+				"down": {"uv": [1, 0.5, 0.5, 2.5], "texture": "#texture"}
+			}
+		},
+		{
+			"from": [6.99, 5.99, 3.79],
+			"to": [9.01, 8.01, 4.31],
+			"light_emission": 15,
+			"shade_direction_override": "up",
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "texture": "#ember"},
+				"east": {"uv": [0, 0, 4, 16], "texture": "#ember"},
+				"west": {"uv": [12, 0, 16, 16], "texture": "#ember"},
+				"up": {"uv": [0, 0, 16, 4], "texture": "#ember"},
+				"down": {"uv": [0, 12, 16, 16], "texture": "#ember"}
+			}
+		}
+	],
+	"display": {
+		"thirdperson_righthand": {
+			"rotation": [-5, -20, 0],
+			"translation": [-1.25, 1, -1]
+		},
+		"thirdperson_lefthand": {
+			"rotation": [-5, -20, 0],
+			"translation": [-1.25, 1, -1]
+		},
+		"firstperson_righthand": {
+			"rotation": [15, -15, 0],
+			"translation": [-5, 2.5, 0]
+		},
+		"firstperson_lefthand": {
+			"rotation": [15, -15, 0],
+			"translation": [-5, 2.5, 0]
+		}
+	}
+}

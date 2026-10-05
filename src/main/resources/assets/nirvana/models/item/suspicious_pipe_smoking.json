@@ -1,5 +1,5 @@
 {
-  "parent": "nirvana:item/stuffed_pipe",
+  "parent": "nirvana:item/stuffed_pipe_smoking",
   "textures": {
     "layer0": "nirvana:item/suspicious_pipe"
   }

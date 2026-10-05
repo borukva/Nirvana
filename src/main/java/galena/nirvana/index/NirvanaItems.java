@@ -45,6 +45,16 @@ public class NirvanaItems {
             .hasConsumeParticles(false)
             .build();
 
+    // A plain Polymer disguise reads the animation and duration from this component. Using
+    // InstrumentItem (the real goat horn) would also trigger its sound and client-side cooldown.
+    // Keep this silent: SmokingItem owns the smoke, sound, durability and completion effects.
+    private static final Consumable JOINT_USE_ANIMATION = Consumable.builder()
+            .consumeSeconds(2.0F)
+            .animation(ItemUseAnimation.TOOT_HORN)
+            .sound(BuiltInRegistries.SOUND_EVENT.wrapAsHolder(net.minecraft.sounds.SoundEvents.EMPTY))
+            .hasConsumeParticles(false)
+            .build();
+
     // Plants and crafting materials.
     public static final Item HEMP = registerItem("hemp", SimplePolymerItem::new,
             new Item.Properties().delayedComponent(DataComponents.PROVIDES_BANNER_PATTERNS,
@@ -69,7 +79,7 @@ public class NirvanaItems {
 
     public static final Item JOINT = registerItem(
             "joint",
-            settings -> new SmokingItem(settings.durability(3), List.of(
+            settings -> new SmokingItem(settings.durability(3).component(DataComponents.CONSUMABLE, JOINT_USE_ANIMATION), List.of(
                     new MobEffectInstance(NirvanaEffects.PEACE, 400, 0)
             ), "joint", Items.AIR, NirvanaSounds.SMOKING)
     );

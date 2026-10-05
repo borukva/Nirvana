@@ -1,0 +1,13 @@
+{
+  "parent": "nirvana:item/stuffed_pipe",
+  "display": {
+    "firstperson_righthand": {
+      "rotation": [15, -85, 0],
+      "translation": [-1, -1.5, -3]
+    },
+    "firstperson_lefthand": {
+      "rotation": [15, 85, 0],
+      "translation": [0, -1.5, -3]
+    }
+  }
+}

@@ -314,7 +314,8 @@ public class SmokingItem extends BowItem implements PolymerItem {
 
     @Override
     public Item getPolymerItem(ItemStack itemStack, PacketContext context) {
-        return Items.BOW;
+        // The joint's consumable component supplies TOOT_HORN without running vanilla horn logic.
+        return this.namePath.equals("joint") ? Items.STICK : Items.BOW;
     }
 
     @Override
@@ -324,7 +325,7 @@ public class SmokingItem extends BowItem implements PolymerItem {
 
     @Override
     public ItemUseAnimation getUseAnimation(ItemStack stack) {
-        return ItemUseAnimation.BOW;
+        return this.namePath.equals("joint") ? ItemUseAnimation.TOOT_HORN : ItemUseAnimation.BOW;
     }
 
     /**
@@ -357,7 +358,7 @@ public class SmokingItem extends BowItem implements PolymerItem {
         }
 
         user.startUsingItem(hand);
-        return InteractionResult.SUCCESS;
+        return this.namePath.equals("joint") ? InteractionResult.CONSUME : InteractionResult.SUCCESS;
     }
 
     @Override
