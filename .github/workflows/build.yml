@@ -52,3 +52,38 @@ jobs:
           name: nirvana-${{ github.sha }}
           path: build/libs/*.jar
           if-no-files-found: error
+
+  release:
+    name: Automatic GitHub Release
+    needs: build
+    if: >-
+      github.event_name == 'push' &&
+      (github.ref_name == '26.2' || github.ref_name == github.event.repository.default_branch)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v5
+        with:
+          name: nirvana-${{ github.sha }}
+          path: artifacts
+
+      - name: Create automatic GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: build-${{ github.run_id }}
+          RELEASE_BRANCH: ${{ github.ref_name }}
+          RELEASE_SHA: ${{ github.sha }}
+        run: |
+          if gh release view "$RELEASE_TAG" > /dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" artifacts/*.jar --clobber
+            gh release edit "$RELEASE_TAG" --prerelease=false --latest
+          else
+            gh release create "$RELEASE_TAG" artifacts/*.jar \
+              --target "$RELEASE_SHA" \
+              --title "Build $RELEASE_BRANCH (${RELEASE_SHA:0:7})" \
+              --generate-notes --latest
+          fi
