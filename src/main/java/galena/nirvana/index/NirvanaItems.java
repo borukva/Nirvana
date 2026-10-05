@@ -2,7 +2,6 @@ package galena.nirvana.index;
 
 import galena.nirvana.Nirvana;
 import galena.nirvana.effects.NirvanaEffects;
-import galena.nirvana.utils.ModFoodComponents;
 import eu.pb4.polymer.core.api.item.PolymerBlockItem;
 import eu.pb4.polymer.core.api.item.SimplePolymerItem;
 import net.minecraft.core.component.DataComponents;
@@ -44,7 +43,10 @@ public class NirvanaItems {
             .hasConsumeParticles(false)
             .build();
 
-    public static final Item HEMP = registerItem("hemp", SimplePolymerItem::new, new Item.Properties());
+    public static final Item HEMP = registerItem("hemp", SimplePolymerItem::new,
+            new Item.Properties().delayedComponent(DataComponents.PROVIDES_BANNER_PATTERNS,
+                    registries -> registries.lookupOrThrow(Registries.BANNER_PATTERN)
+                            .getOrThrow(TagKey.create(Registries.BANNER_PATTERN, Nirvana.id("hemp_banner_patterns")))));
     public static final Item WEED = registerItem("weed", SimplePolymerItem::new, new Item.Properties());
     public static Item HEMP_SEEDS = registerItem("hemp_seeds",  settings -> new PolymerBlockItem(NirvanaBlocks.HEMP, settings));
     public static Item WILD_HEMP = registerItem("wild_hemp",  settings -> new PolymerBlockItem(NirvanaBlocks.WILD_HEMP, settings));
