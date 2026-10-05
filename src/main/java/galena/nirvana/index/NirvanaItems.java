@@ -1,9 +1,9 @@
 package galena.nirvana.index;
 
-import galena.nirvana.Nirvana;
 import galena.nirvana.effects.NirvanaEffects;
 import eu.pb4.polymer.core.api.item.PolymerBlockItem;
 import eu.pb4.polymer.core.api.item.SimplePolymerItem;
+import net.minecraft.world.level.block.ComposterBlock;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.component.Consumable;
 import net.minecraft.world.food.FoodProperties;
@@ -17,11 +17,13 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Rarity;
 
 import java.util.List;
 import java.util.function.Function;
+
+import static galena.nirvana.Nirvana.id;
+
 public class NirvanaItems {
     /**
      * bong/potion_bong are disguised as Items.POTION (so they can be dragged into a brewing
@@ -43,15 +45,19 @@ public class NirvanaItems {
             .hasConsumeParticles(false)
             .build();
 
+    // Plants and crafting materials.
     public static final Item HEMP = registerItem("hemp", SimplePolymerItem::new,
             new Item.Properties().delayedComponent(DataComponents.PROVIDES_BANNER_PATTERNS,
                     registries -> registries.lookupOrThrow(Registries.BANNER_PATTERN)
-                            .getOrThrow(TagKey.create(Registries.BANNER_PATTERN, Nirvana.id("hemp_banner_patterns")))));
-    public static final Item WEED = registerItem("weed", SimplePolymerItem::new, new Item.Properties());
-    public static Item HEMP_SEEDS = registerItem("hemp_seeds",  settings -> new PolymerBlockItem(NirvanaBlocks.HEMP, settings));
-    public static Item WILD_HEMP = registerItem("wild_hemp",  settings -> new PolymerBlockItem(NirvanaBlocks.WILD_HEMP, settings));
-    public static final Item WEED_BROWNIE  = registerItem("weed_brownie", SimplePolymerItem::new, new Item.Properties().food(new FoodProperties(2, 0.1f, false), ModConsumableComponents.BROWNIE));
-    public static final Item HEMP_CLOTH = registerItem("hemp_cloth", SimplePolymerItem::new, new Item.Properties());
+                            .getOrThrow(TagKey.create(Registries.BANNER_PATTERN, id("hemp_banner_patterns")))));
+    public static final Item WEED = registerItem("weed", SimplePolymerItem::new);
+    public static final Item HEMP_SEEDS = registerItem("hemp_seeds",
+            settings -> new PolymerBlockItem(NirvanaBlocks.HEMP, settings));
+    public static final Item WILD_HEMP = registerItem("wild_hemp",
+            settings -> new PolymerBlockItem(NirvanaBlocks.WILD_HEMP, settings));
+    public static final Item WEED_BROWNIE = registerItem("weed_brownie", SimplePolymerItem::new,
+            new Item.Properties().food(new FoodProperties(2, 0.1F, false), ModConsumableComponents.BROWNIE));
+    public static final Item HEMP_CLOTH = registerItem("hemp_cloth", SimplePolymerItem::new);
 
     public static final Item POTION_BONG = registerItem("potion_bong",
             settings -> new PotionBongItem(settings.durability(4).component(DataComponents.CONSUMABLE, BOW_USE_ANIMATION)));
@@ -59,7 +65,7 @@ public class NirvanaItems {
     public static final Item PEACE_BANNER_PATTERN = registerItem("peace_banner_pattern", SimplePolymerItem::new,
             new Item.Properties().stacksTo(1).rarity(Rarity.UNCOMMON)
                     .delayedComponent(DataComponents.PROVIDES_BANNER_PATTERNS, registries -> registries.lookupOrThrow(Registries.BANNER_PATTERN)
-                            .getOrThrow(TagKey.create(Registries.BANNER_PATTERN, Identifier.fromNamespaceAndPath(Nirvana.MOD_ID, "peace_banner_patterns")))));
+                            .getOrThrow(TagKey.create(Registries.BANNER_PATTERN, id("peace_banner_patterns")))));
 
     public static final Item JOINT = registerItem(
             "joint",
@@ -83,18 +89,20 @@ public class NirvanaItems {
                     // once registries are actually loaded, same as PROVIDES_BANNER_PATTERNS above.
                     .delayedComponent(DataComponents.JUKEBOX_PLAYABLE, registries -> new JukeboxPlayable(
                             registries.lookupOrThrow(Registries.JUKEBOX_SONG)
-                                    .getOrThrow(ResourceKey.create(Registries.JUKEBOX_SONG, Identifier.fromNamespaceAndPath(Nirvana.MOD_ID, "jam"))))));
+                                    .getOrThrow(ResourceKey.create(Registries.JUKEBOX_SONG, id("jam"))))));
 
-    public static final Item REEFER_SPAWN_EGG = registerItem("reefer_spawn_egg", ReeferSpawnEgg::new, new Item.Properties());
+    public static final Item REEFER_SPAWN_EGG = registerItem("reefer_spawn_egg", ReeferSpawnEgg::new);
     public static final Item THC_MINECART = registerItem("thc_minecart", ThcMinecartItem::new, new Item.Properties().stacksTo(1));
 
-    public static final Item OLD_PIPE = registerItem("old_pipe", SimplePolymerItem::new, new Item.Properties().stacksTo(1).rarity(Rarity.UNCOMMON));
+    // Pipes and salves.
+    public static final Item OLD_PIPE = registerItem("old_pipe", SimplePolymerItem::new,
+            new Item.Properties().stacksTo(1).rarity(Rarity.UNCOMMON));
 
     public static final Item STUFFED_PIPE = registerItem(
             "stuffed_pipe",
             settings -> new SmokingItem(settings.durability(12).rarity(Rarity.UNCOMMON), List.of(
                     new MobEffectInstance(NirvanaEffects.PEACE, 600, 0)
-            ), "stuffed_pipe", NirvanaItems.OLD_PIPE, NirvanaSounds.SMOKING, true)
+            ), "stuffed_pipe", OLD_PIPE, NirvanaSounds.SMOKING, true)
     );
 
     public static final Item SUSPICIOUS_PIPE = registerItem(
@@ -120,12 +128,14 @@ public class NirvanaItems {
     }
 
     private static Item registerItem(String name, Function<Item.Properties, Item> factory, Item.Properties settings) {
-        var key = ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(Nirvana.MOD_ID, name));
+        var key = ResourceKey.create(Registries.ITEM, id(name));
         Item item = factory.apply(settings.setId(key));
         return Registry.register(BuiltInRegistries.ITEM, key, item);
     }
 
     public static void registerModItems() {
+        registerComposting();
+
         // Archived per request - dispensers "smoking" a loaded joint/pipe onto whatever's in
         // front of them. Only the joint applies its effect through a dispenser in the original
         // mod; the pipes register the same behaviour purely for their smoke particles.
@@ -134,5 +144,12 @@ public class NirvanaItems {
         // SmokingItem.registerDispenserBehavior((SmokingItem) JOINT, true);
         // SmokingItem.registerDispenserBehavior((SmokingItem) STUFFED_PIPE, false);
         // SmokingItem.registerDispenserBehavior((SmokingItem) SUSPICIOUS_PIPE, false);
+    }
+
+    private static void registerComposting() {
+        ComposterBlock.COMPOSTABLES.put(HEMP_SEEDS, 0.3F);
+        ComposterBlock.COMPOSTABLES.put(WEED, 0.5F);
+        ComposterBlock.COMPOSTABLES.put(HEMP, 0.65F);
+        ComposterBlock.COMPOSTABLES.put(WILD_HEMP, 0.65F);
     }
 }

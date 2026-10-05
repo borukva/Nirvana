@@ -10,6 +10,7 @@ import galena.nirvana.entity.NirvanaEntities;
 import galena.nirvana.utils.FlowerModels;
 import galena.nirvana.index.NirvanaBlocks;
 import galena.nirvana.index.NirvanaItems;
+import galena.nirvana.index.NirvanaCreativeTabs;
 import galena.nirvana.world.gen.ModFlowerGeneration;
 import galena.nirvana.world.gen.ModLootInjections;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
@@ -28,6 +29,7 @@ public class Nirvana implements ModInitializer {
 	public void onInitialize() {
         NirvanaBlocks.registerBlocks();
         NirvanaItems.registerModItems();
+        NirvanaCreativeTabs.register();
         NirvanaEntities.register();
         FlowerModels.register();
         ModFlowerGeneration.generateFlowers();
