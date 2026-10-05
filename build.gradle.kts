@@ -9,7 +9,9 @@ plugins {
     id("maven-publish")
 }
 
-version = property("mod_version") as String
+version = providers.environmentVariable("RELEASE_VERSION")
+    .map { it.removePrefix("v") }
+    .getOrElse(property("mod_version") as String)
 group = property("maven_group") as String
 
 base {
