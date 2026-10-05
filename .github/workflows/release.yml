@@ -54,5 +54,8 @@ jobs:
           GH_REPO: ${{ github.repository }}
           RELEASE_TAG: ${{ github.ref_name }}
         run: |
+          mod_version=$(sed -n 's/^mod_version=//p' gradle.properties | tr -d '\r')
+          mc_version=$(sed -n 's/^minecraft_version=//p' gradle.properties | tr -d '\r')
+          test -n "$mod_version" && test -n "$mc_version"
           gh release create "$RELEASE_TAG" build/libs/*.jar \
-            --verify-tag --title "$RELEASE_TAG" --generate-notes
+            --verify-tag --title "${mod_version%%+*}+$mc_version" --generate-notes

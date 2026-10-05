@@ -18,8 +18,18 @@ jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    outputs:
+      release-title: ${{ steps.version.outputs.title }}
     steps:
       - uses: actions/checkout@v6
+
+      - name: Read release version
+        id: version
+        run: |
+          mod_version=$(sed -n 's/^mod_version=//p' gradle.properties | tr -d '\r')
+          mc_version=$(sed -n 's/^minecraft_version=//p' gradle.properties | tr -d '\r')
+          test -n "$mod_version" && test -n "$mc_version"
+          echo "title=${mod_version%%+*}+$mc_version" >> "$GITHUB_OUTPUT"
 
       - uses: actions/setup-java@v5
         with:
@@ -75,15 +85,15 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           RELEASE_TAG: build-${{ github.run_id }}
-          RELEASE_BRANCH: ${{ github.ref_name }}
+          RELEASE_TITLE: ${{ needs.build.outputs.release-title }}
           RELEASE_SHA: ${{ github.sha }}
         run: |
           if gh release view "$RELEASE_TAG" > /dev/null 2>&1; then
             gh release upload "$RELEASE_TAG" artifacts/*.jar --clobber
-            gh release edit "$RELEASE_TAG" --prerelease=false --latest
+            gh release edit "$RELEASE_TAG" --title "$RELEASE_TITLE" --prerelease=false --latest
           else
             gh release create "$RELEASE_TAG" artifacts/*.jar \
               --target "$RELEASE_SHA" \
-              --title "Build $RELEASE_BRANCH (${RELEASE_SHA:0:7})" \
+              --title "$RELEASE_TITLE" \
               --generate-notes --latest
           fi
