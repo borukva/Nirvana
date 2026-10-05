@@ -18,6 +18,9 @@ base {
 
 repositories {
     maven("https://maven.nucleoid.xyz")
+    maven("https://api.modrinth.com/maven") {
+        content { includeGroup("maven.modrinth") }
+    }
 }
 
 fabricApi {
@@ -50,6 +53,12 @@ dependencies {
     implementation("eu.pb4:polymer-autohost:$polymerVersion")
 
     implementation(include("eu.pb4:factorytools:[${property("factorytools_version")}]")!!)
+
+    // Optional compatibility: available to compile and in the dev server, never bundled.
+    compileOnly("maven.modrinth:polydex:${property("polydex_version")}")
+    // Modrinth's artifact has no transitive POM; PageBuilder exposes SGUI types.
+    compileOnly("eu.pb4:sgui:2.1.0+26.2")
+    runtimeOnly("maven.modrinth:polydex:${property("polydex_version")}")
 }
 
 tasks.processResources {

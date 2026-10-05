@@ -13,6 +13,8 @@ import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.level.Level;
 
+import java.util.ArrayList;
+
 /**
  * Same idea as vanilla Suspicious Stew: a base container + some weed + N of a single flower type
  * produces an item whose effects come from that flower's own vanilla suspicious-stew effect
@@ -28,6 +30,22 @@ public abstract class SuspiciousCraftingRecipe extends CustomRecipe {
     protected abstract int getRequiredWeed();
     protected abstract int getDurationFactor();
     protected abstract Item getResult();
+
+    /** A real crafting grid for recipe viewers; quantities stay owned by the recipe. */
+    public CraftingInput createDisplayInput(Item flower) {
+        var stacks = new ArrayList<ItemStack>();
+        stacks.add(new ItemStack(getBase().items().findFirst().orElseThrow()));
+        for (int i = 0; i < getRequiredWeed(); i++) {
+            stacks.add(new ItemStack(NirvanaItems.WEED));
+        }
+        for (int i = 0; i < getRequiredFlowers(); i++) {
+            stacks.add(new ItemStack(flower));
+        }
+        while (stacks.size() < 9) {
+            stacks.add(ItemStack.EMPTY);
+        }
+        return CraftingInput.of(3, 3, stacks);
+    }
 
     // Not a static Ingredient like WEED_ITEM: tags aren't populated yet at mod-init time (when
     // static fields are evaluated), so this is checked lazily per-stack instead.

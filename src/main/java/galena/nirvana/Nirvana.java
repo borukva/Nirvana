@@ -5,6 +5,7 @@ import galena.nirvana.data.ModTags;
 import galena.nirvana.data.NirvanaBrewingRecipes;
 import galena.nirvana.data.NirvanaRecipeTypes;
 import galena.nirvana.effects.NirvanaEffects;
+import galena.nirvana.polydex.PolydexCompat;
 import galena.nirvana.entity.NirvanaEntities;
 import galena.nirvana.utils.FlowerModels;
 import galena.nirvana.index.NirvanaBlocks;
@@ -36,6 +37,7 @@ public class Nirvana implements ModInitializer {
         NirvanaRecipeTypes.register();
         NirvanaBrewingRecipes.register();
         NirvanaAdvancements.register();
+        PolydexCompat.register();
         if (PolymerResourcePackUtils.addModAssets(MOD_ID)) {
             ResourcePackExtras.forDefault().addBridgedModelsFolder(id("block"), id("item"));
             LOGGER.info("Successfully added mod assets for " + MOD_ID);

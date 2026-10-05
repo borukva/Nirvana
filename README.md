@@ -22,6 +22,8 @@ Nirvana is a mod that attempts to add weed as close to mojang's style as possibl
 
 ## 🎞️ Compatibility:
 
+[Polydex](https://modrinth.com/mod/polydex) (optional; 1.10.0+26.2-rc-2 for Minecraft 26.2) - Recipes and ingredient uses, including flower-specific Pipes/Herbal Salves and Bong brewing with potion variants. No client mod is required.
+
 [Supplementaries](https://modrinth.com/mod/supplementaries) - Rope can be made out of Hemp
 
 Any mod adding flowers will allow you to use them in Herbal Salves and Pipes
