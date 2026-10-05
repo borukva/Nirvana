@@ -25,9 +25,17 @@ public class NirvanaEntities {
                     .updateInterval(10));
 
     public static final EntityType<MinecartThc> THC_MINECART = register("thc_minecart",
-            EntityType.Builder.<MinecartThc>of(MinecartThc::new, MobCategory.MISC)
+            EntityType.Builder.of(MinecartThc::new, MobCategory.MISC)
                     .sized(0.98F, 0.7F)
                     .clientTrackingRange(8));
+
+    public static final EntityType<BongWindCharge> BONG_WIND_CHARGE = register("bong_wind_charge",
+            EntityType.Builder.<BongWindCharge>of(BongWindCharge::new, MobCategory.MISC)
+                    .noLootTable()
+                    .sized(0.3125F, 0.3125F)
+                    .eyeHeight(0.0F)
+                    .clientTrackingRange(4)
+                    .updateInterval(10));
 
     private static <T extends net.minecraft.world.entity.Entity> EntityType<T> register(String path, EntityType.Builder<T> builder) {
         var key = ResourceKey.create(Registries.ENTITY_TYPE, Nirvana.id(path));
@@ -36,6 +44,6 @@ public class NirvanaEntities {
 
     public static void register() {
         FabricDefaultAttributeRegistry.register(REEFER, Creeper.createAttributes());
-        PolymerEntityUtils.registerType(REEFER, THC, THC_MINECART);
+        PolymerEntityUtils.registerType(REEFER, THC, THC_MINECART, BONG_WIND_CHARGE);
     }
 }

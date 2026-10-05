@@ -1,6 +1,7 @@
 package galena.nirvana.index;
 
 import eu.pb4.polymer.core.api.item.PolymerCreativeModeTabUtils;
+import galena.nirvana.data.NirvanaBrewingRecipes;
 import galena.nirvana.data.SuspiciousCraftingRecipe;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -14,7 +15,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionContents;
-import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.item.component.SuspiciousStewEffects;
 import net.minecraft.world.level.block.SuspiciousEffectHolder;
 
@@ -76,7 +77,7 @@ public final class NirvanaCreativeTabs {
                 MAGENTA_WOVEN_BURLAP_ITEM, PINK_WOVEN_BURLAP_ITEM}) {
             entries.accept(item);
         }
-        addPotionBongStacks(entries);
+        addPotionBongStacks(context, entries);
     }
 
     /** Resolve the datapack-loaded painting variant only when the tab is displayed. */
@@ -106,14 +107,15 @@ public final class NirvanaCreativeTabs {
                 });
     }
 
-    private static void addPotionBongStacks(CreativeModeTab.Output entries) {
-        BuiltInRegistries.POTION.stream()
-                .filter(potion -> potion != Potions.WATER.value())
-                .forEach(potion -> {
-                    var stack = new ItemStack(NirvanaItems.POTION_BONG);
-                    stack.set(DataComponents.POTION_CONTENTS,
-                            new PotionContents(BuiltInRegistries.POTION.wrapAsHolder(potion)));
-                    entries.accept(stack);
-                });
+    private static void addPotionBongStacks(CreativeModeTab.ItemDisplayParameters context,
+                                           CreativeModeTab.Output entries) {
+        var seen = new HashSet<PotionContents>();
+        var brewing = PotionBrewing.bootstrap(context.enabledFeatures());
+        for (var recipe : NirvanaBrewingRecipes.getReachableBongRecipes(brewing)) {
+            var stack = recipe.output();
+            if (stack.is(NirvanaItems.POTION_BONG) && seen.add(stack.get(DataComponents.POTION_CONTENTS))) {
+                entries.accept(stack);
+            }
+        }
     }
 }

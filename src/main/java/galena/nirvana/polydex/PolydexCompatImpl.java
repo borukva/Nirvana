@@ -8,16 +8,10 @@ import galena.nirvana.data.SuspiciousCraftingRecipe;
 import galena.nirvana.index.NirvanaItems;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.alchemy.PotionContents;
-import net.minecraft.world.item.alchemy.Potions;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.function.Consumer;
@@ -38,7 +32,7 @@ final class PolydexCompatImpl {
                 var recipe = (NirvanaPolydexPage) page;
                 var entry = createVariantEntry(recipe.output());
                 variants.putIfAbsent(entry.identifier(), entry);
-                // Some usable precursors (e.g. a water potion bong) are not in the creative tab.
+                // Keep recipe precursors linked to the same component-aware entries as outputs.
                 for (var input : recipe.input()) {
                     if (!input.isEmpty()
                             && BuiltInRegistries.ITEM.getKey(input.getItem()).getNamespace().equals(Nirvana.MOD_ID)) {
@@ -70,7 +64,7 @@ final class PolydexCompatImpl {
             }
         }
         return PolydexEntry.of(Nirvana.id(variant.toString()), stack,
-                (entry, candidate) -> candidate.getBacking() instanceof ItemStack actual
+                (_, candidate) -> candidate.getBacking() instanceof ItemStack actual
                         && NirvanaPolydexPage.sameVariant(stack, actual));
     }
 
@@ -88,34 +82,17 @@ final class PolydexCompatImpl {
             }
         }
 
-        var water = new ItemStack(Items.POTION);
-        water.set(DataComponents.POTION_CONTENTS, new PotionContents(Potions.WATER));
-        addBrewingPage(server, consumer, water, NirvanaItems.WEED, "water", "weed");
-        addBrewingPage(server, consumer, new ItemStack(NirvanaItems.BONG), Items.NETHER_WART, "bong", "nether_wart");
-
-        var reagents = new ArrayList<Item>();
-        for (var item : BuiltInRegistries.ITEM) {
-            if (server.potionBrewing().isIngredient(new ItemStack(item))) {
-                reagents.add(item);
+        for (var recipe : NirvanaBrewingRecipes.getReachableBongRecipes(server.potionBrewing())) {
+            var input = recipe.input();
+            var source = BuiltInRegistries.ITEM.getKey(input.getItem()).toDebugFileName();
+            var contents = input.get(DataComponents.POTION_CONTENTS);
+            if (contents != null && contents.potion().isPresent()) {
+                source += "/" + contents.potion().orElseThrow().unwrapKey().orElseThrow()
+                        .identifier().toDebugFileName();
             }
-        }
-        for (var potion : server.registryAccess().lookupOrThrow(Registries.POTION).listElements().toList()) {
-            var input = new ItemStack(NirvanaItems.POTION_BONG);
-            input.set(DataComponents.POTION_CONTENTS, new PotionContents(potion));
-            for (var reagent : reagents) {
-                addBrewingPage(server, consumer, input, reagent, potion.key().identifier().toDebugFileName(),
-                        BuiltInRegistries.ITEM.getKey(reagent).toDebugFileName());
-            }
-        }
-    }
-
-    private static void addBrewingPage(MinecraftServer server, Consumer<PolydexPage> consumer,
-                                       ItemStack input, Item reagent, String source, String catalyst) {
-        var ingredient = new ItemStack(reagent);
-        var output = NirvanaBrewingRecipes.getCustomResult(input, ingredient, server.potionBrewing());
-        if (output != null) {
+            var catalyst = BuiltInRegistries.ITEM.getKey(recipe.ingredient().getItem()).toDebugFileName();
             consumer.accept(new NirvanaPolydexPage(Nirvana.id("brewing/" + source + "/" + catalyst),
-                    List.of(input.copy(), ingredient), output, true));
+                    List.of(input, recipe.ingredient()), recipe.output(), true));
         }
     }
 }

@@ -1,6 +1,28 @@
 {
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "nirvana:item/bong"
-  }
+	"format_version": "26.3",
+	"credit": "Made with Blockbench",
+	"parent": "minecraft:item/generated",
+	"textures": {
+		"layer0": "nirvana:item/bong"
+	},
+	"display": {
+		"thirdperson_righthand": {
+			"rotation": [0, -135, 0],
+			"translation": [1, 0, -1],
+			"scale": [0.6, 0.6, 0.6]
+		},
+		"thirdperson_lefthand": {
+			"rotation": [0, 45, 0],
+			"translation": [0, 0, -1],
+			"scale": [0.6, 0.6, 0.6]
+		},
+		"firstperson_righthand": {
+			"rotation": [15, -60, 0],
+			"translation": [0, 2, -3]
+		},
+		"firstperson_lefthand": {
+			"rotation": [15, 120, 0],
+			"translation": [0, 2, -3]
+		}
+	}
 }

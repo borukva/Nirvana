@@ -5,6 +5,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Unlike other {@link SmokingItem}s, this one has no fixed effect list - it's crafted
@@ -19,7 +20,7 @@ public class SuspiciousPipeItem extends SmokingItem {
     }
 
     @Override
-    protected List<MobEffectInstance> getEffects(ItemStack stack) {
+    protected @NonNull List<MobEffectInstance> getEffects(@NonNull ItemStack stack) {
         return SuspiciousItem.getEffects(stack).stream()
                 .map(effect -> effect.isInfiniteDuration() || effect.getDuration() >= MIN_EFFECT_DURATION_TICKS
                         ? effect

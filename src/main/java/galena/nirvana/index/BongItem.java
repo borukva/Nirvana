@@ -1,7 +1,10 @@
 package galena.nirvana.index;
 
 import galena.nirvana.Nirvana;
+import galena.nirvana.entity.BongWindCharge;
 import eu.pb4.polymer.core.api.item.PolymerItem;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -20,6 +23,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
 import net.minecraft.core.HolderLookup;
 import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
+import org.jspecify.annotations.NullMarked;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -34,6 +38,7 @@ import java.util.function.Consumer;
  * ({@link ItemUseAnimation#BOW}) is kept; this also no longer needs the BowItem-arrow-firing workaround
  * the rest of the family has to guard against, since it doesn't extend {@code BowItem} at all.
  */
+@NullMarked
 public class BongItem extends Item implements PolymerItem {
     private static final int COOLDOWN_TICKS = 20;
     private static final int USE_DURATION = 40;
@@ -95,6 +100,11 @@ public class BongItem extends Item implements PolymerItem {
 
             SmokingItem.scheduleSmoke(serverWorld, user.getUUID());
             SmokingItem.scheduleEffects(user.getUUID(), effects);
+            var contents = PotionContents.EMPTY;
+            for (var effect : effects) {
+                contents = contents.withEffectAdded(new MobEffectInstance(effect));
+            }
+            SmokingItem.scheduleWindCharge(user.getUUID(), contents);
 
             boolean creative = false;
             if (user instanceof Player player) {
@@ -120,12 +130,21 @@ public class BongItem extends Item implements PolymerItem {
     }
 
     @Override
+    @SuppressWarnings("deprecation") // Custom effect tooltips still use Item's legacy hook.
     public void appendHoverText(ItemStack stack,
                               TooltipContext context,
                               TooltipDisplay displayComponent,
                               Consumer<Component> tooltip,
                               TooltipFlag type) {
-        super.appendHoverText(stack, context, displayComponent, tooltip, type);
         SmokingItem.appendEffectTooltip(effects, tooltip);
+    }
+
+    /** Share the bong's effects through a harmless wind charge without consuming another item. */
+    static void shootWindCharge(ServerLevel world, LivingEntity user, PotionContents contents) {
+        // Brewing intermediates such as the awkward bong have no effects to share.
+        if (!contents.hasEffects()) return;
+        Projectile.spawnProjectileFromRotation(
+                (level, owner, _) -> new BongWindCharge(level, owner, contents),
+                world, new ItemStack(Items.WIND_CHARGE), user, 0.0F, 1.5F, 1.0F);
     }
 }

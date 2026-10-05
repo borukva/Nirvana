@@ -19,6 +19,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
+import org.jspecify.annotations.NullMarked;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +27,7 @@ import java.util.List;
 /**
  * A bong variant pre-filled with a vanilla potion's effects (dynamic per-stack, via the stack's
  * own {@code POTION_CONTENTS} component), rather than a fixed effect list baked into the item
- * like {@link SmokingItem}. One stack per registered potion shows up in the creative tab.
+ * like {@link SmokingItem}. One stack per brewable, reachable variant shows up in the creative tab.
  * <p>
  * Disguised as a genuine {@code Items.POTION} (not {@code Items.BOW}) so it can actually be
  * dragged into a brewing stand's potion slot by hand - see {@link BongItem} for why. The disguise
@@ -34,6 +35,7 @@ import java.util.List;
  * "smoking" animation is kept; this also no longer needs the BowItem-arrow-firing workaround
  * since it doesn't extend {@code BowItem} at all.
  */
+@NullMarked
 public class PotionBongItem extends Item implements PolymerItem {
     private static final int COOLDOWN_TICKS = 20;
     private static final int USE_DURATION = 40;
@@ -85,14 +87,15 @@ public class PotionBongItem extends Item implements PolymerItem {
     @Override
     public ItemStack finishUsingItem(ItemStack stack, Level world, LivingEntity user) {
         var contents = stack.get(DataComponents.POTION_CONTENTS);
-        if (world instanceof ServerLevel && contents != null) {
+        if (world instanceof ServerLevel serverWorld && contents != null) {
             world.playSound(null, user.getX(), user.getY(), user.getZ(),
                     NirvanaSounds.BONG, user.getSoundSource(), 0.5F, 1.0F);
 
-            SmokingItem.scheduleSmoke((ServerLevel) world, user.getUUID());
+            SmokingItem.scheduleSmoke(serverWorld, user.getUUID());
             List<MobEffectInstance> effects = new ArrayList<>();
             contents.forEachEffect(effects::add, 1.0F);
             SmokingItem.scheduleEffects(user.getUUID(), effects);
+            SmokingItem.scheduleWindCharge(user.getUUID(), contents);
 
             boolean creative = false;
             if (user instanceof Player player) {

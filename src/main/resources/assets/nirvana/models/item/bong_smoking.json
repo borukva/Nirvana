@@ -1,0 +1,23 @@
+{
+  "parent": "nirvana:item/bong",
+  "display": {
+    "firstperson_righthand": {
+      "rotation": [70, -110, -15],
+      "translation": [0, 2, -4]
+    },
+    "firstperson_lefthand": {
+      "rotation": [70, 70, 15],
+      "translation": [0, 2, -4]
+    },
+    "thirdperson_righthand": {
+      "rotation": [0, -135, 0],
+      "translation": [1, 0, -1],
+      "scale": [0.6, 0.6, 0.6]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [0, 45, 0],
+      "translation": [1, 0, -1],
+      "scale": [0.6, 0.6, 0.6]
+    }
+  }
+}

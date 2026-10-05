@@ -2,12 +2,19 @@ package galena.nirvana.data;
 
 import galena.nirvana.index.NirvanaItems;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.item.alchemy.PotionBrewing;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 /**
  * Bongs aren't crafted at a crafting table - same as the original mod, they're brewed, mirroring
@@ -50,6 +57,44 @@ public class NirvanaBrewingRecipes {
 
     public static boolean isBongRelated(ItemStack stack) {
         return stack.getItem() == (NirvanaItems.BONG) || stack.getItem() == (NirvanaItems.POTION_BONG);
+    }
+
+    public record BrewingRecipe(ItemStack input, ItemStack ingredient, ItemStack output) {
+    }
+
+    private record Variant(Item item, @Nullable PotionContents contents) {
+        static Variant of(ItemStack stack) {
+            return new Variant(stack.getItem(), stack.get(DataComponents.POTION_CONTENTS));
+        }
+    }
+
+    /** Only show variants obtainable from the real water bottle + weed starting recipe. */
+    public static List<BrewingRecipe> getReachableBongRecipes(PotionBrewing registry) {
+        var ingredients = BuiltInRegistries.ITEM.stream()
+                .map(ItemStack::new)
+                .filter(registry::isIngredient)
+                .toList();
+        var water = new ItemStack(Items.POTION);
+        water.set(DataComponents.POTION_CONTENTS, new PotionContents(Potions.WATER));
+
+        var pending = new ArrayDeque<ItemStack>();
+        var visited = new HashSet<Variant>();
+        var recipes = new ArrayList<BrewingRecipe>();
+        pending.add(water);
+        visited.add(Variant.of(water));
+
+        while (!pending.isEmpty()) {
+            var input = pending.removeFirst();
+            for (var ingredient : ingredients) {
+                var output = getCustomResult(input, ingredient, registry);
+                if (output == null || Variant.of(input).equals(Variant.of(output))) continue;
+                recipes.add(new BrewingRecipe(input.copy(), ingredient.copy(), output.copy()));
+                if (visited.add(Variant.of(output))) {
+                    pending.addLast(output);
+                }
+            }
+        }
+        return List.copyOf(recipes);
     }
 
     @Nullable

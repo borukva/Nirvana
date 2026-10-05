@@ -17,6 +17,7 @@ import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipDisplay;
@@ -40,6 +41,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
 import net.minecraft.core.HolderLookup;
 import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
+import org.jspecify.annotations.NullMarked;
 
 import galena.nirvana.entity.SmokeRing;
 
@@ -51,6 +53,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+@NullMarked
 public class SmokingItem extends BowItem implements PolymerItem {
     private final List<MobEffectInstance> effects;
     private final Identifier modelData;
@@ -63,11 +66,12 @@ public class SmokingItem extends BowItem implements PolymerItem {
     private final SoundEvent sound;
     private final boolean smokeRing;
     private static final int COOLDOWN_TICKS = 20;
-    private static final int PARTICLE_DELAY_TICKS = 50;
+    private static final int PARTICLE_DELAY_TICKS = 30;
     private static final int USE_DURATION = 40;
     private static final Map<UUID, Long> particleSchedules = new HashMap<>();
     private static final Identifier TICK_EVENT_ID = Identifier.fromNamespaceAndPath("nirvana", "joint_tick");
     private static final Map<UUID, List<MobEffectInstance>> scheduledEffects = new HashMap<>();
+    private static final Map<UUID, PotionContents> scheduledWindCharges = new HashMap<>();
     private static final Set<UUID> scheduledRings = new HashSet<>();
 
     /** The same "Sprigatito"/"Skeker" reskin {@link galena.nirvana.mixin.CatEntityMixin} applies. */
@@ -91,7 +95,7 @@ public class SmokingItem extends BowItem implements PolymerItem {
     private static final int ZOOMIES_TIMEOUT_TICKS = 200;
     private static final Map<UUID, ZoomiesState> zoomiesCats = new HashMap<>();
 
-    private record CatSmokeSchedule(long tick, UUID playerUuid) {
+    private record CatSmokeSchedule(long tick) {
     }
 
     /** {@code nextIndex} tracks progress through {@code points}; mutable since it advances in
@@ -126,6 +130,11 @@ public class SmokingItem extends BowItem implements PolymerItem {
         scheduledEffects.put(playerUuid, effects);
     }
 
+    /** Launch alongside the delayed exhale, using the player's position and aim at that moment. */
+    static void scheduleWindCharge(UUID playerUuid, PotionContents contents) {
+        scheduledWindCharges.put(playerUuid, contents);
+    }
+
     /**
      * Stand-in for the original mod's custom smoke-ring particle, which a server-only mod can't
      * register - see {@link SmokeRing}, which imitates one with a display entity. Only the pipes
@@ -142,14 +151,19 @@ public class SmokingItem extends BowItem implements PolymerItem {
                 UUID playerUuid = entry.getKey();
                 long tick = entry.getValue();
                 if (server.overworld().getGameTime() >= tick) {
+                    var chargeContents = scheduledWindCharges.remove(playerUuid);
+                    var effects = scheduledEffects.remove(playerUuid);
+                    boolean smokeRing = scheduledRings.remove(playerUuid);
                     Player player = server.getPlayerList().getPlayer(playerUuid);
-                    if (player != null && !player.isRemoved()) {
+                    // The player's world is borrowed, not a resource owned by this callback.
+                    //noinspection resource
+                    if (player != null && !player.isRemoved() && player.level() instanceof ServerLevel world) {
                         // A pipe exhales its smoke ring and nothing else - the generic puff is for
                         // everything that doesn't blow one.
-                        if (scheduledRings.remove(playerUuid)) {
-                            spawnSmokeRing(server.overworld(), player);
+                        if (smokeRing) {
+                            spawnSmokeRing(world, player);
                         } else {
-                            server.overworld().sendParticles(
+                            world.sendParticles(
                                     ParticleTypes.CAMPFIRE_COSY_SMOKE,
                                     player.getX(), player.getY() + 1.6, player.getZ(),
                                     10,
@@ -158,10 +172,12 @@ public class SmokingItem extends BowItem implements PolymerItem {
                             );
                         }
 
-                        player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
+                        world.playSound(null, player.getX(), player.getY(), player.getZ(),
                                 NirvanaSounds.BLOW, player.getSoundSource(), 0.6F, 1.0F);
 
-                        List<MobEffectInstance> effects = scheduledEffects.remove(playerUuid);
+                        if (chargeContents != null) {
+                            BongItem.shootWindCharge(world, player, chargeContents);
+                        }
                         if (effects != null) {
                             for (MobEffectInstance effect : effects) {
                                 applyEffect(player, effect);
@@ -177,7 +193,7 @@ public class SmokingItem extends BowItem implements PolymerItem {
                 UUID catUuid = entry.getKey();
                 CatSmokeSchedule schedule = entry.getValue();
                 if (server.overworld().getGameTime() >= schedule.tick()) {
-                    exhaleOnCat(server.overworld(), catUuid, schedule.playerUuid());
+                    exhaleOnCat(server.overworld(), catUuid);
                     smokingCats.remove(catUuid);
                     return true;
                 }
@@ -214,7 +230,7 @@ public class SmokingItem extends BowItem implements PolymerItem {
      * instead of one navigation.moveTo() call per point, since a lone call is easily overridden the
      * very next tick by whatever the cat's own goal selector currently favors.
      */
-    private static void exhaleOnCat(ServerLevel world, UUID catUuid, UUID playerUuid) {
+    private static void exhaleOnCat(ServerLevel world, UUID catUuid) {
         if (!(world.getEntity(catUuid) instanceof Cat cat) || cat.isRemoved()) return;
 
         world.sendParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE,
@@ -277,12 +293,12 @@ public class SmokingItem extends BowItem implements PolymerItem {
     }
 
     @Override
+    @SuppressWarnings("deprecation") // Custom effect tooltips still use Item's legacy hook.
     public void appendHoverText(ItemStack stack,
                               TooltipContext context,
                               TooltipDisplay displayComponent,
                               Consumer<Component> tooltip,
                               TooltipFlag type) {
-        super.appendHoverText(stack, context, displayComponent, tooltip, type);
         appendEffectTooltip(getEffects(stack), tooltip);
     }
 
@@ -334,6 +350,7 @@ public class SmokingItem extends BowItem implements PolymerItem {
      * (durability hit, cooldown-free since it's a one-off gag) mirrors a normal self-use.
      */
     @Override
+    @SuppressWarnings("resource") // The player's world is borrowed and must not be closed here.
     public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target, InteractionHand hand) {
         if (!this.namePath.equals("joint")) return InteractionResult.PASS;
         if (!(target instanceof Cat cat) || !cat.getVariant().is(SPRIGATITO)) return InteractionResult.PASS;
@@ -341,7 +358,7 @@ public class SmokingItem extends BowItem implements PolymerItem {
         if (!smokingCats.add(cat.getUUID())) return InteractionResult.SUCCESS;
 
         world.playSound(null, cat.getX(), cat.getY(), cat.getZ(), this.sound, cat.getSoundSource(), 0.5F, 1.0F);
-        catSmokeSchedules.put(cat.getUUID(), new CatSmokeSchedule(world.getGameTime() + PARTICLE_DELAY_TICKS, player.getUUID()));
+        catSmokeSchedules.put(cat.getUUID(), new CatSmokeSchedule(world.getGameTime() + PARTICLE_DELAY_TICKS));
 
         if (!player.getAbilities().instabuild) {
             player.setItemInHand(hand, takeHit(stack));
@@ -420,6 +437,7 @@ public class SmokingItem extends BowItem implements PolymerItem {
      * an effect this way in the original - the pipes register this too, but purely for the smoke
      * particles, matching their own {@code appliesEffect = false}.
      */
+    @SuppressWarnings("unused") // Intentionally archived; registrations remain disabled in NirvanaItems.
     static void registerDispenserBehavior(SmokingItem item, boolean appliesEffect) {
         DispenserBlock.registerBehavior(item, (BlockSource pointer, ItemStack stack) -> {
             ServerLevel world = pointer.level();
@@ -431,7 +449,7 @@ public class SmokingItem extends BowItem implements PolymerItem {
             if (appliesEffect) {
                 double range = DISPENSER_EFFECT_RADIUS * 2;
                 var targets = world.getEntities(EntityTypeTest.forClass(LivingEntity.class),
-                        AABB.ofSize(center, range, range, range), target -> true);
+                        AABB.ofSize(center, range, range, range), _ -> true);
                 for (LivingEntity target : targets) {
                     for (MobEffectInstance effect : item.getEffects(stack)) {
                         applyEffect(target, effect);
