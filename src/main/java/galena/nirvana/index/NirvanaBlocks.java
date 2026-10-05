@@ -193,7 +193,7 @@ public class NirvanaBlocks {
             entries.accept(NirvanaItems.WEED_BROWNIE);
             entries.accept(NirvanaItems.JOINT);
             entries.accept(NirvanaItems.BONG);
-            addPotionBongStacks(entries);
+
             entries.accept(NirvanaItems.REEFER_SPAWN_EGG);
             entries.accept(NirvanaItems.THC_MINECART);
             entries.accept(NirvanaItems.MUSIC_DISC_JAM);
@@ -204,7 +204,7 @@ public class NirvanaBlocks {
 
             entries.accept(NirvanaItems.OLD_PIPE);
             entries.accept(NirvanaItems.STUFFED_PIPE);
-            addSuspiciousStacks(entries, NirvanaItems.SUSPICIOUS_PIPE, 4);
+            addSuspiciousStacks(entries, NirvanaItems.SUSPICIOUS_PIPE, 2);
             entries.accept(HEMP_CRATE_ITEM);
             entries.accept(WEED_CRATE_ITEM);
             entries.accept(HEMP_BURLAP_ITEM);
@@ -241,6 +241,8 @@ public class NirvanaBlocks {
             entries.accept(PURPLE_WOVEN_BURLAP_ITEM);
             entries.accept(MAGENTA_WOVEN_BURLAP_ITEM);
             entries.accept(PINK_WOVEN_BURLAP_ITEM);
+
+            addPotionBongStacks(entries);
         });
         CreativeModeTab polymerGroup = builder.build();
         PolymerCreativeModeTabUtils.registerPolymerCreativeModeTab(id("blocks"), polymerGroup);
@@ -275,13 +277,18 @@ public class NirvanaBlocks {
                 // No ItemTags.SMALL_FLOWERS anymore (26.2 only kept the block-side tag) - go
                 // through the item's own block form instead, same as SuspiciousCraftingRecipe.
                 .filter(flowerItem -> flowerItem instanceof BlockItem blockItem
-                        && blockItem.getBlock().builtInRegistryHolder().is(BlockTags.SMALL_FLOWERS))
+                        && blockItem.getBlock().defaultBlockState().is(BlockTags.SMALL_FLOWERS))
                 .forEach(flower -> {
                     var ingredient = SuspiciousEffectHolder.tryGet(flower);
+                    if (ingredient == null) return;
+
                     var effects = new SuspiciousStewEffects(
                             ingredient.getSuspiciousEffects().effects()
                                     .stream()
-                                    .map(it -> new SuspiciousStewEffects.Entry(it.effect(), it.duration() * durationFactor))
+                                    .map(it -> new SuspiciousStewEffects.Entry(it.effect(),
+                                            item == NirvanaItems.SUSPICIOUS_PIPE
+                                                    ? Math.max(20, it.duration() * durationFactor)
+                                                    : it.duration() * durationFactor))
                                     .toList()
                     );
                     if (effects.effects().isEmpty() || !seen.add(effects)) return;

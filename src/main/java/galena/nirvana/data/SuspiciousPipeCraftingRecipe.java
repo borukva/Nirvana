@@ -6,7 +6,6 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.CustomRecipe;
 
@@ -21,11 +20,9 @@ public class SuspiciousPipeCraftingRecipe extends SuspiciousCraftingRecipe {
     public static final StreamCodec<RegistryFriendlyByteBuf, SuspiciousPipeCraftingRecipe> STREAM_CODEC = StreamCodec.unit(INSTANCE);
     public static final RecipeSerializer<SuspiciousPipeCraftingRecipe> SERIALIZER = new RecipeSerializer<>(MAP_CODEC, STREAM_CODEC);
 
-    private static final Ingredient BASE_ITEM = Ingredient.of(NirvanaItems.OLD_PIPE);
-
     @Override
-    protected Ingredient getBase() {
-        return BASE_ITEM;
+    protected Item getBase() {
+        return NirvanaItems.OLD_PIPE;
     }
 
     @Override

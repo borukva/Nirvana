@@ -25,7 +25,7 @@ import java.util.ArrayList;
 public abstract class SuspiciousCraftingRecipe extends CustomRecipe {
     private static final Ingredient WEED_ITEM = Ingredient.of(NirvanaItems.WEED);
 
-    protected abstract Ingredient getBase();
+    protected abstract Item getBase();
     protected abstract int getRequiredFlowers();
     protected abstract int getRequiredWeed();
     protected abstract int getDurationFactor();
@@ -34,7 +34,7 @@ public abstract class SuspiciousCraftingRecipe extends CustomRecipe {
     /** A real crafting grid for recipe viewers; quantities stay owned by the recipe. */
     public CraftingInput createDisplayInput(Item flower) {
         var stacks = new ArrayList<ItemStack>();
-        stacks.add(new ItemStack(getBase().items().findFirst().orElseThrow()));
+        stacks.add(new ItemStack(getBase()));
         for (int i = 0; i < getRequiredWeed(); i++) {
             stacks.add(new ItemStack(NirvanaItems.WEED));
         }
@@ -54,7 +54,7 @@ public abstract class SuspiciousCraftingRecipe extends CustomRecipe {
     // goes through the item's own block form instead - every small flower is a BlockItem anyway.
     private static boolean isFlower(ItemStack stack) {
         return stack.getItem() instanceof BlockItem blockItem
-                && blockItem.getBlock().builtInRegistryHolder().is(BlockTags.SMALL_FLOWERS);
+                && blockItem.getBlock().defaultBlockState().is(BlockTags.SMALL_FLOWERS);
     }
 
     @Override
@@ -67,7 +67,7 @@ public abstract class SuspiciousCraftingRecipe extends CustomRecipe {
         for (int i = 0; i < input.size(); ++i) {
             ItemStack stack = input.getItem(i);
             if (!stack.isEmpty()) {
-                if (getBase().test(stack)) {
+                if (stack.is(getBase())) {
                     if (hasBase) {
                         return false;
                     }

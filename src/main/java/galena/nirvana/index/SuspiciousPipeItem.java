@@ -12,12 +12,19 @@ import java.util.List;
  * same as vanilla Suspicious Stew, and reads whatever effects that crafting baked into the stack.
  */
 public class SuspiciousPipeItem extends SmokingItem {
+    private static final int MIN_EFFECT_DURATION_TICKS = 20;
+
     public SuspiciousPipeItem(Properties settings) {
         super(settings, List.of(), "suspicious_pipe", NirvanaItems.OLD_PIPE, NirvanaSounds.SMOKING, true);
     }
 
     @Override
     protected List<MobEffectInstance> getEffects(ItemStack stack) {
-        return SuspiciousItem.getEffects(stack);
+        return SuspiciousItem.getEffects(stack).stream()
+                .map(effect -> effect.isInfiniteDuration() || effect.getDuration() >= MIN_EFFECT_DURATION_TICKS
+                        ? effect
+                        : new MobEffectInstance(effect.getEffect(), MIN_EFFECT_DURATION_TICKS,
+                                effect.getAmplifier(), effect.isAmbient(), effect.isVisible(), effect.showIcon()))
+                .toList();
     }
 }
