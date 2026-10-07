@@ -1,6 +1,11 @@
 package galena.nirvana.mixin;
 
 import galena.nirvana.Nirvana;
+import galena.nirvana.index.SmokingItem;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.entity.animal.feline.Cat;
 import net.minecraft.world.entity.animal.feline.CatVariant;
 import net.minecraft.resources.ResourceKey;
@@ -13,6 +18,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Locale;
 
@@ -24,12 +30,26 @@ import java.util.Locale;
  */
 @Mixin(Cat.class)
 public abstract class CatEntityMixin {
+    @Unique
     private static final ResourceKey<CatVariant> SPRIGATITO = ResourceKey.create(Registries.CAT_VARIANT, Identifier.fromNamespaceAndPath(Nirvana.MOD_ID, "sprigatito"));
 
     @Unique
     private String nirvana$lastCheckedName = "";
     @Unique
     private Holder<CatVariant> nirvana$variantBeforeSprigatito;
+
+    // Cat.mobInteract consumes an owner's click to toggle sitting before the item hook runs.
+    // Give the joint first refusal, leaving all other cat interactions unchanged.
+    @Inject(method = "mobInteract", at = @At("HEAD"), cancellable = true)
+    private void nirvana$shareJoint(Player player, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir) {
+        ItemStack stack = player.getItemInHand(hand);
+        if (stack.getItem() instanceof SmokingItem smokingItem) {
+            InteractionResult result = smokingItem.interactLivingEntity(stack, player, (Cat) (Object) this, hand);
+            if (result != InteractionResult.PASS) {
+                cir.setReturnValue(result);
+            }
+        }
+    }
 
     @Inject(method = "tick", at = @At("HEAD"))
     private void nirvana$checkSprigatito(CallbackInfo ci) {

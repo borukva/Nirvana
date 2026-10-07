@@ -95,18 +95,20 @@ public class SmokingItem extends BowItem implements PolymerItem {
     private static final int ZOOMIES_TIMEOUT_TICKS = 200;
     private static final Map<UUID, ZoomiesState> zoomiesCats = new HashMap<>();
 
-    private record CatSmokeSchedule(long tick) {
+    private record CatSmokeSchedule(ResourceKey<Level> dimension, long tick) {
     }
 
     /** {@code nextIndex} tracks progress through {@code points}; mutable since it advances in
      * place tick over tick rather than being replaced wholesale like the map's other schedules. */
     private static final class ZoomiesState {
+        final ResourceKey<Level> dimension;
         final List<Vec3> points;
         final long startAt;
         final long deadline;
         int nextIndex = 0;
 
-        ZoomiesState(List<Vec3> points, long startAt, long deadline) {
+        ZoomiesState(ResourceKey<Level> dimension, List<Vec3> points, long startAt, long deadline) {
+            this.dimension = dimension;
             this.points = points;
             this.startAt = startAt;
             this.deadline = deadline;
@@ -192,8 +194,9 @@ public class SmokingItem extends BowItem implements PolymerItem {
             catSmokeSchedules.entrySet().removeIf(entry -> {
                 UUID catUuid = entry.getKey();
                 CatSmokeSchedule schedule = entry.getValue();
-                if (server.overworld().getGameTime() >= schedule.tick()) {
-                    exhaleOnCat(server.overworld(), catUuid);
+                ServerLevel world = server.getLevel(schedule.dimension());
+                if (world == null || world.getGameTime() >= schedule.tick()) {
+                    if (world != null) exhaleOnCat(world, catUuid);
                     smokingCats.remove(catUuid);
                     return true;
                 }
@@ -203,8 +206,10 @@ public class SmokingItem extends BowItem implements PolymerItem {
             zoomiesCats.entrySet().removeIf(entry -> {
                 UUID catUuid = entry.getKey();
                 ZoomiesState zoomies = entry.getValue();
-                long now = server.overworld().getGameTime();
-                if (!(server.overworld().getEntity(catUuid) instanceof Cat cat) || cat.isRemoved()
+                ServerLevel world = server.getLevel(zoomies.dimension);
+                if (world == null) return true;
+                long now = world.getGameTime();
+                if (!(world.getEntity(catUuid) instanceof Cat cat) || cat.isRemoved() || cat.isInSittingPose() || cat.isOrderedToSit()
                         || now >= zoomies.deadline || zoomies.nextIndex >= zoomies.points.size()) {
                     return true;
                 }
@@ -243,6 +248,9 @@ public class SmokingItem extends BowItem implements PolymerItem {
         cat.addEffect(new MobEffectInstance(MobEffects.SPEED, CAT_SPEED_DURATION_TICKS, CAT_SPEED_AMPLIFIER, false, false));
         cat.hiss();
 
+        // A sitting cat still exhales and hisses, but must not start a zoomies run.
+        if (cat.isInSittingPose() || cat.isOrderedToSit()) return;
+
         int pointCount = ZOOMIES_MIN_POINTS + world.getRandom().nextInt(ZOOMIES_MAX_POINTS - ZOOMIES_MIN_POINTS + 1);
         List<Vec3> points = new java.util.ArrayList<>();
         for (int i = 0; i < pointCount; i++) {
@@ -251,7 +259,7 @@ public class SmokingItem extends BowItem implements PolymerItem {
         }
         if (!points.isEmpty()) {
             long now = world.getGameTime();
-            zoomiesCats.put(catUuid, new ZoomiesState(points, now + ZOOMIES_PAUSE_TICKS, now + ZOOMIES_TIMEOUT_TICKS));
+            zoomiesCats.put(catUuid, new ZoomiesState(world.dimension(), points, now + ZOOMIES_PAUSE_TICKS, now + ZOOMIES_TIMEOUT_TICKS));
         }
     }
 
@@ -358,7 +366,7 @@ public class SmokingItem extends BowItem implements PolymerItem {
         if (!smokingCats.add(cat.getUUID())) return InteractionResult.SUCCESS;
 
         world.playSound(null, cat.getX(), cat.getY(), cat.getZ(), this.sound, cat.getSoundSource(), 0.5F, 1.0F);
-        catSmokeSchedules.put(cat.getUUID(), new CatSmokeSchedule(world.getGameTime() + PARTICLE_DELAY_TICKS));
+        catSmokeSchedules.put(cat.getUUID(), new CatSmokeSchedule(world.dimension(), world.getGameTime() + PARTICLE_DELAY_TICKS));
 
         if (!player.getAbilities().instabuild) {
             player.setItemInHand(hand, takeHit(stack));
