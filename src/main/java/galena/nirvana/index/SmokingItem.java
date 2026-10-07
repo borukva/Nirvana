@@ -331,7 +331,7 @@ public class SmokingItem extends BowItem implements PolymerItem {
     @Override
     public Item getPolymerItem(ItemStack itemStack, PacketContext context) {
         // The joint's consumable component supplies TOOT_HORN without running vanilla horn logic.
-        return this.namePath.equals("joint") ? Items.STICK : Items.BOW;
+        return this.namePath.equals("joint") ? Items.PAPER : Items.BOW;
     }
 
     @Override
