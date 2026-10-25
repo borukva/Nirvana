@@ -27,12 +27,12 @@ public class NirvanaBasketBlock extends Block implements PolymerTexturedBlock {
         super(settings);
         this.registerDefaultState(this.defaultBlockState().setValue(FACING, Direction.NORTH));
 
-        Map<Direction, Integer> rotations = Map.of(
+        Map<Direction, Integer> rotations = new EnumMap<>(Map.of(
                 Direction.NORTH, 0,
                 Direction.SOUTH, 180,
                 Direction.WEST, 270,
                 Direction.EAST, 90
-        );
+        ));
 
         rotations.forEach((dir, yRot) -> models.put(dir,
                 PolymerBlockResourceUtils.requestBlock(
